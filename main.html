@@ -3,15 +3,28 @@
    </head>
    <body>
       <form name=”calculator”>
-         <table cellspacing="8px" cellpadding="4px" border="0">
+         <table cellspacing="8px" cellpadding="4px" border="0" frame="box" align="center">
             <tr>
-               <td> <tx>Current Level:</tx> <input type="number" name="clevel" id="clevel" value="0" min="0" max="99" step="1"> </td>
-               <td> <tx>Current EXP:</tx> <input type="number" name="cexp" id="cexp" value="0" min="0" max="145699" step="1000"> </td>
+               <td> Current Level: <input type="number" id="clevel" value="0" min="0" max="99" step="1"> </td>
+               <td> Current EXP: <input type="number" id="cexp" value="0" min="0" max="145699" step="1000"> </td>
+               <td> Target Level: <input type="number" id="tlevel" value="0" min="0" max="100" step="1"> </td>
             </tr>
             <tr>
-                <td> <tx>Target Level:</tx> <input type="number" name="tlevel" id="tlevel" value="0" min="0" max="100" step="1"> </td>
+                <table cellspacing="10px" cellpadding="5px" border="0" align="center">
+                  <tr>
+                    <td> <input type="button" id="calculate" value="Calculate" onclick="calculate()"> </td>
+                    <td> <input type="reset" id="reset" value="Reset"> </td>
+                  </tr>
+                </table>
+                
             </tr>
          </table>
+         <table cellspacing="8px" cellpadding="4px" border="0" frame="above" align="center">
+          <tr>
+            <td> Combat Reports: <input type=number id="combatReports" min="0" max="9999" disabled> </td>
+            <td> EXP Required: <input type=number id="expRequired" min="0" max="3263200" disabled> </td>
+           </tr>
+        </table>
       </form>
    </body>
 </html>
