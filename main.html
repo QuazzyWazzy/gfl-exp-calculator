@@ -1,6 +1,6 @@
 <html>
    <head>
-      <script type="text/javascript" src="script.js"></script>
+     <script type="text/javascript" src="script.js"></script>
    </head>
    <body>
       <form name=”calculator”>
@@ -13,19 +13,22 @@
             <tr>
                 <table cellspacing="10px" cellpadding="5px" border="0" align="center">
                   <tr>
-                    <td> <input type="button" id="calculate" value="Calculate" onclick="calculate()"> </td>
+                    <td> <input type="button" id="calculate" value="Calculate" onclick="calculateBtn()"> </td>
                     <td> <input type="reset" id="reset" value="Reset"> </td>
                   </tr>
-                </table>
-                
+                </table>                
             </tr>
          </table>
          <table cellspacing="8px" cellpadding="4px" border="0" frame="above" align="center">
           <tr>
-            <td> Combat Reports: <input type=number id="combatReports" min="0" max="9999" disabled> </td>
-            <td> EXP Required: <input type=number id="expRequired" min="0" max="3263200" disabled> </td>
+            <td> Combat Reports: <input type="number" id="combatReports" min="0" max="9999" disabled> </td>
+            <td> EXP Required: <input type="text" id="expRequired" disabled> </td>
+           </tr>
+           <tr>
+             <td> Batteries Required: <input type="number" id="batteries" min="0" max="9999" disabled> </td>
            </tr>
         </table>
       </form>
+      <p id="debug"></p>
    </body>
 </html>
