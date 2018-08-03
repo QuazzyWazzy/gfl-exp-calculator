@@ -3,9 +3,9 @@ var levelEXP = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2
 
 function calculate()
 {
-	var clevel = document.getElementById("clevel");
-  var cexp = document.getElementById("cexp");
-  var tlevel = document.getElementById("tlevel");
+	var clevel = document.getElementById("clevel").value;
+  var cexp = document.getElementById("cexp").value;
+  var tlevel = document.getElementById("tlevel").value;
   
   var combatReports = document.getElementById("combatReports");
   var expRequired = document.getElementById("expRequired");
@@ -36,6 +36,6 @@ function calculate()
   if(totalRequiredEXP < 0)
   	return;
     
-	combatReports.attribute = Math.round(totalRequiredEXP / combatReportEXP);
-  requiredEXP.attribute = totalRequiredEXP;
+	combatReports.value = Math.round(totalRequiredEXP / combatReportEXP);
+  expRequired.value = totalRequiredEXP;
 }
