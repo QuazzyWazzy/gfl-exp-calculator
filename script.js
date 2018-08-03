@@ -28,7 +28,6 @@ function calculateBtn()
   for(i = 0; i < tExpIndex; i++)  
   	tOverallEXP += levelEXP[i] * 100;
   
-  //document.getElementById("debug").innerHTML = cOverallEXP + " " + tOverallEXP;
   //Calculate
 	var totalRequiredEXP = tOverallEXP - cOverallEXP;
   var totalCombatReports = Math.ceil(totalRequiredEXP / combatReportEXP);
