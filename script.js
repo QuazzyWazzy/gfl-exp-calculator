@@ -34,10 +34,20 @@ function calculateBtn()
   var crRequiredEXP = totalCombatReports * combatReportEXP;
   var battRequired = totalCombatReports * batteryPerReport;
   
+  var crOutput = document.getElementById("combatReports");
+  var expOutput = document.getElementById("expRequired");
+  var battOutput = document.getElementById("batteries")
+  
   if(totalRequiredEXP < 0)
-  	return;
+  {
+  	crOutput.value = null;
+  	expOutput.value = null;
+  	battOutput.value = null;
+  	alert("Invalid Input");
+    return;
+  }
     
-	document.getElementById("combatReports").value = totalCombatReports;
-  document.getElementById("expRequired").value = totalRequiredEXP + " (" + crRequiredEXP + ")";
-  document.getElementById("batteries").value = battRequired;
+	crOutput.value = totalCombatReports;
+  expOutput.value = totalRequiredEXP + " (" + crRequiredEXP + ")";
+  battOutput.value = battRequired;
 }
