@@ -317,6 +317,7 @@ var dollsLeveled = 0;
 
 var totalBattles = 0;
 var stageClears = 0;
+var stagesCleared = 0;
 var stageIndex = 0;
 
 var target = 0;
@@ -345,6 +346,7 @@ function calculateBtn()
 	dollsLeveled = 0;
 	totalBattles = 0;
 	stageClears = 0;
+	stagesCleared = 0;
 
 	target = parseInt(document.getElementById("target").value);
 	excessSurplusEXP = 0;
@@ -480,7 +482,7 @@ function calculationLoop()
 			c = 0;
 			totalBattles++;
 			
-			if(corpseDrag)
+			if(corpseDrag && stageClears > stagesCleared)
 			{
 				var newCarry;
 				var newLeader;
@@ -503,6 +505,7 @@ function calculationLoop()
 					newLeader = 1;
 
 				currentDollLeader = newLeader;
+				stagesCleared++;
 			}
 
 			setResultValues();
