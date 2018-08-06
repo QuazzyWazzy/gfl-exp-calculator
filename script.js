@@ -14,16 +14,16 @@ var leaderAndMvpBonus = 0.06;
 var levelEXP = [100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2800,3100,3400,4200,4600,5000,5400,5800,6300,6700,7200,7700,8200,8800,9300,9900,10500,11100,11800,12500,13100,13900,14600,15400,16100,16900,17700,18600,19500,20400,21300,22300,23300,24300,25300,26300,27400,28500,29600,30800,32000,33200,34400,45100,46800,48600,50400,52200,54000,55900,57900,59800,61800,63900,66000,68100,70300,72600,74800,77100,79500,81900,84300,112600,116100,119500,123100,126700,130400,134100,137900,141800,145700];
 var totalLevelEXP = [0,100,300,600,1000,1500,2100,2800,3600,4500,5500,6600,7800,9100,10500,12000,13600,15300,17100,19000,21000,23100,25300,27600,30000,32500,35100,37900,41000,44400,48600,53200,58200,63600,69400,75700,82400,89600,97300,105500,114300,123600,133500,144000,155100,166900,179400,192500,206400,221000,236400,252500,269400,287100,305700,325200,345600,366900,389200,412500,436800,462100,488400,515800,544300,573900,604700,636700,669900,704300,749400,796200,844800,895200,947400,1001400,1057300,1115200,1175000,1236800,1300700,1366700,1434800,1505100,1577700,1652500,1729600,1809100,1891000,1975300,2087900,2204000,2323500,2446600,2573300,2703700,2837800,2975700,3117500,3263200];
 
-// [0] Stage Name [1] Penalty Level [2] Base EXP [3] Amount of Enemies
+// [0] Stage Name [1] Penalty Level [2] Base EXP [3] Amount of Enemies [4] Turns to Finish
 var stageEXP = [
-	["1-2", 14, 150, 4],
-	["2-3", 29, 220, 4],
-	["2-1E", 35, 250, 4],
-	["3-5", 50, 290, 4],
-	["4-3E", 74, 370, 4],
-	["5-4", 79, 380, 5],
-	["5-2E", 87, 410, 5],
-	["0-2", 100, 490, 5],
+	["1-2", 14, 150, 4, 2],
+	["2-3", 29, 220, 4, 0],
+	["2-1E", 35, 250, 4, 0],
+	["3-5", 50, 290, 4, 0],
+	["4-3E", 74, 370, 4, 0],
+	["5-4", 79, 380, 5, 0],
+	["5-2E", 87, 410, 5, 0],
+	["0-2", 100, 490, 5, 1],
 ];
 
 //Percentage to Decimal
@@ -475,6 +475,8 @@ function calculationLoop()
 		if(calcType == "targetLevel" && dolls[c].nlevel >= target)
 				dollsLeveled++;
 
+		dolls[c].rationsConsumed = Math.round(dolls[c].rationsConsumed);
+
 		c++;
 		calculations++;
 		
@@ -611,7 +613,7 @@ function setResultValues()
 	batteries.value = batteriesConsumed;
 
 	document.getElementById("ammoC").value = ammoConsumed;
-	document.getElementById("rationsC").value = rationsConsumed;
+	document.getElementById("rationsC").value = Math.round(rationsConsumed);
 }
 
 function levelToEXP(level, EXP)
@@ -817,8 +819,14 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 				break;
 		}
 
-		ammo = Math.round(ammo * ammoConsumption);
-		rations = Math.round(rations * rationConsumption);
+		ammo *= ammoConsumption;
+
+		var stageEnemies = stageEXP[stageIndex][3];
+		var stageTurns = stageEXP[stageIndex][4];
+		var rationsPerStage = stageEnemies + stageTurns;
+		var rationRate = rationsPerStage / stageEnemies;
+
+		rations *= rationConsumption * rationRate;
 
 		this.ammoConsumed += ammo;
 		ammoConsumed += ammo;
