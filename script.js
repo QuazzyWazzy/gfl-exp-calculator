@@ -42,6 +42,9 @@ var RFconsumption = [[15, 30], [25, 45], [35, 60], [45, 75], [55, 90]];
 var MGconsumption = [[40, 30], [65, 45], [90, 60], [115, 75], [140, 90]];
 var SGconsumption = [[30, 40], [45, 65], [60, 90], [75, 115], [90, 140]];
 
+var ammoConsumption = 0.2;
+var rationConsumption = 0.1;
+
 var linkLevels = [1, 10, 30, 70, 90];
 var linkMultiplier = [1, 1.5, 2, 2.5, 3];
 
@@ -814,8 +817,8 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 				break;
 		}
 
-		ammo /= 5;
-		rations /= 5;
+		ammo = Math.round(ammo * ammoConsumption);
+		rations = Math.round(rations * rationConsumption);
 
 		this.ammoConsumed += ammo;
 		ammoConsumed += ammo;
