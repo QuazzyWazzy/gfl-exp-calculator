@@ -144,7 +144,7 @@ function resetCalculator()
 function resetConsole()
 {
 	var consoleBox = document.getElementById("consoleBox");
-	consoleBox.innerHTML = " --------------------------------------\n Corpse Dragging EXP Calculator | v1.0\n --------------------------------------";
+	consoleBox.innerHTML = " --------------------------------------\n Girl's Frontline EXP Calculator | v1.0\n --------------------------------------";
 }
 
 var toggledElements = [];
