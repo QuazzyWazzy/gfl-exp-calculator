@@ -563,7 +563,7 @@ function loopFinish()
 	{
 		var gunType = dolls[i].gunType.toUpperCase();
 
-		Log("Doll " + (i + 1) + " (" + gunType + ") Level:" + dolls[i].clevel + " - " + dolls[i].nlevel + ", EXP:" + dolls[i].nexp + ", Ammo:" + dolls[i].ammoConsumed + ", Rations:" + dolls[i].rationsConsumed + ", Reports Consumed:" + dolls[i].crConsumed);
+		Log("Doll " + (i + 1) + " (" + gunType + ") Level: " + dolls[i].clevel + " - " + dolls[i].nlevel + ", EXP: " + dolls[i].nexp + ", Ammo: " + dolls[i].ammoConsumed + ", Rations: " + dolls[i].rationsConsumed + ", Reports Consumed: " + dolls[i].crConsumed);
 	}
 
 	Log("----------------------------------------------------------------------------");
