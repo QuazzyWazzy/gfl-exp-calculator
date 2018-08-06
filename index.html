@@ -2,37 +2,155 @@
    <head>
      <title>Combat Report Calculator</title>
      <style>
-       body { font-family: Calibri; }
+       body { 
+				font-family: Calibri; 
+				padding-top: 20;
+				padding-right: 20;
+				padding-bottom: 20;
+				padding-left: 20;
+				}
+			 textarea { resize: none; }
      </style>
      <script type="text/javascript" src="script.js"></script>
    </head>
-   <body>
-      <form name=”calculator”>
-         <table cellspacing="8px" cellpadding="4px" border="0" frame="box" align="center">
-            <tr>
-               <td> Current Level: <input type="number" id="clevel" value="0" min="0" max="99" step="1"> </td>
-               <td> Current EXP: <input type="number" id="cexp" value="0" min="0" max="145699" step="1000"> </td>
-               <td> Target Level: <input type="number" id="tlevel" value="0" min="0" max="100" step="1"> </td>
-            </tr>
-            <tr>
-                <table cellspacing="10px" cellpadding="5px" border="0" align="center">
-                  <tr>
-                    <td> <input type="button" id="calculate" value="Calculate" onclick="calculateBtn()"> </td>
-                    <td> <input type="reset" id="reset" value="Reset"> </td>
-                  </tr>
-                </table>                
-            </tr>
-         </table>
-         <table cellspacing="8px" cellpadding="4px" border="0" frame="above" align="center">
-          <tr>
-            <td> Combat Reports: <input type="number" id="combatReports" min="0" max="9999" disabled> </td>
-            <td> EXP Required: <input type="text" id="expRequired" disabled> </td>
-           </tr>
-           <tr>
-             <td> Batteries Required: <input type="number" id="batteries" min="0" max="9999" disabled> </td>
-           </tr>
-        </table>
-      </form>
-      <p id="debug"></p>
+   <body onload="generateCalculator()">
+      <form id=”calculator” oninput="calculatorOnInput()">
+
+				<table id="mainTable" cellspacing="8px" cellpadding="4px" border="0" frame="box" align="center">
+					<tr>
+						<td> 
+							Gun Type:
+							<select name="gunType">
+								<option value="none">None</option>
+								<option value="hg" selected>HG</option>
+								<option value="smg">SMG</option>
+								<option value="ar">AR</option>
+								<option value="rf">RF</option>
+								<option value="mg">MG</option>
+								<option value="sg">SG</option>
+							</select>
+						</td>
+						<td> 
+							Doll Type:
+							<select name="dollType" disabled>>
+								<option value="regular" selected>Regular</option>
+								<option value="carry1">1st Carry</option>
+								<option value="carry2">2nd Carry</option>
+							</selct>
+						</td>
+						<td> Current Level: <input type="number" name="clevel" value="1" min="1" max="100" step="1"> </td>
+						<td> Current EXP: <input type="number" name="cexp" value="0" min="0" max="145699" step="1000"> </td>             
+						<td> Is Leader: <input type="checkbox" name="isLeader" onclick="isLeaderClick(this)"> </td>
+						<td> Is Supplied: <input type="checkbox" name="isSupplied"> </td>
+						<td>
+							Links:
+							<select name="links">
+								<option value="auto" selected>Auto</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</selct>
+						</td>
+					</tr>          
+				</table>				
+
+				<br>
+
+				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
+					<tr>
+						<td> 
+							Stage: 
+							<select id="stage">
+							</select>
+						</td>
+						<td> Data Room Level: <input type="number" id="drLevel" value="0" min="0" max="10" step="1"> </td>
+						<td> EXP Boost <input type="checkbox" id="expBoost"> </td>
+						<td> Utilize Surplus EXP <input type="checkbox" id="useSurplusEXP" checked> </td>
+						<td> Corpse Drag Mode <input type="checkbox" id="corpseDrag" checked> </td>
+					</tr>
+				</table>
+
+				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
+					<tr>
+						<td> Link All <input type="checkbox" id="linkDR"> </td>
+						<td> Drone Console: <input type="number" id="dcLevel" value="0" min="0" max="10" step="1"> </td>
+						<td> Data Table: <input type="number" id="dtLevel" value="0" min="0" max="10" step="1"> </td>
+						<td> Opertaing Station: <input type="number" id="osLevel" value="0" min="0" max="10" step="1"> </td>
+						<td> Computer: <input type="number" id="compLevel" value="0" min="0" max="10" step="1"> </td>
+						<td> Fax Machine: <input type="number" id="fmLevel" value="0" min="0" max="10" step="1"> </td>
+					</tr>
+				</table>
+
+				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
+					<tr>
+						<td> Link All <input type="checkbox" id="linkResources"> </td>
+						<td> Ammo: <input type="number" id="ammo" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
+						<td> Rations: <input type="number" id="rations" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
+						<td> Batteries: <input type="number" id="batteries" value="0" min="0" max="9999" step="1" disabled> </td>
+					</tr>
+				</table>
+
+				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
+					<tr>				
+						<td>
+							Calculation:
+							<select id="calcType">
+								<option value="targetLevel">Reach Target Level</option>
+								<option value="executeRuns">Execute Amount of Runs</option>
+								<option value="useResources">Use Resources Allocated</option>
+							</select>
+						</td>
+						<td id="targetText">Target Level:</td> <td> <input type="number" id="target" value="1" min="1" max="100" step="1"> </td>
+					</tr>
+				</table>	
+			
+				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
+					<tr>
+						<td> <input type="button" id="calculate" value=" Calculate " onclick="calculateBtn()"> </td>
+						<td> <input type="button" id="reset" value=" Reset " onclick="resetCalculator()"> </td>
+						<td> <input type="button" id="clearConsole" value=" Clear Console " onclick="resetConsole()"> </td>
+						<td> <input type="button" id="stop" value=" Stop " onclick="stopCalculation()"> </td>
+					</tr>
+				</table> 
+
+				<br>
+
+				<table cellspacing="6px" cellpadding="3px" border="0" frame="above" align="center">
+					<tr>
+						<td> EXP Acquired: <input type="text" id="EXPacquired" disabled> </td>
+						<td> Surplus EXP: <input type="number" id="surplusEXP" disabled> </td>
+						<td> EXP to Combat Report: <input type="number" id="combatReportEXP" min="0" max="9999" disabled> </td>
+						<td> Surplus to Combat Report: <input type="number" id="combatReportSurplus" min="0" max="9999" disabled> </td>
+					</tr>
+				</table>
+
+				<table cellspacing="6px" cellpadding="3px" border="0" align="center">
+					<tr>
+						<td> Total Battles: <input type="number" id="totalBattles" min="0" max="9999" disabled> </td>
+						<td> Stage Clears: <input type="number" id="stageClears" min="0" max="9999" disabled> </td>
+						<td> Combat Report Hours (<i name="expText">Surplus</i>): <input type="number" id="crHours" min="0" max="9999" disabled> </td>
+						<td> Combat Report Batches (<i name="expText">Surplus</i>): <input type="number" id="crBatches" min="0" max="9999" disabled> </td>
+					</tr>
+				</table>
+
+				<table cellspacing="6px" cellpadding="3px" border="0" align="center">
+					<tr>
+						<td> Resources Consumed = </td>
+						<td> Ammo: <input type="number" id="ammoC" min="0" max="10000" disabled> </td>
+						<td> Rations: <input type="number" id="rationsC" min="0" max="10000" disabled> </td>
+						<td> Batteries (<i name="expText">Surplus</i>): <input type="number" id="batteriesC" min="0" max="9999" disabled> </td>
+					</tr>
+				</table>
+				
+				<br>
+
+				<div align="center">
+					<textarea id="consoleBox" align="right" cols="100" rows="10" disabled></textarea>
+				</div>
+
+			</form>
+
    </body>
 </html>
