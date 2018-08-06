@@ -755,6 +755,9 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 						nextToConsumeIndex++;
 					}
 				}
+
+				if(calcType == "targetLevel" && this.nlevel >= target && nextToConsumeIndex == this.index)
+					nextToConsumeIndex++;
 			}
 
 			this.levelUp();
