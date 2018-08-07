@@ -1,5 +1,8 @@
-var version = 1.1;
+var version = 1.2;
 var changeLog = [
+	[1.2, [
+		"Tweaked manpower consumption"
+	]],
 	[1.1, [
 		"Added manpower to resource calculation",
 		"Changed leader rules: Now you can assign only 1 leader on Corpse Drag Mode",
@@ -691,6 +694,7 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	this.nexp = cexp;
 	this.expAcquired = 0;
 	this.surplusEXP = 0;
+	this.stagesCleared = 0;
 
 	this.manpowerConsumed = 0;
 	this.ammoConsumed = 0;
@@ -769,6 +773,12 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 		if(this.isSupplied)
 			this.consumeResources();
 
+		if(this.stagesCleared == stageClears)
+		{
+			this.consumeManpower();
+			this.stagesCleared++;
+		}
+
 		var calcType = document.getElementById("calcType").value;
 		var useSurplusEXP = document.getElementById("useSurplusEXP").checked;
 
@@ -828,7 +838,6 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	{
 		var ammo = 0;
 		var rations = 0;
-		var manpower = 0;
 
 		switch(this.gunType)
 		{
@@ -870,19 +879,13 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 		var rationsPerStage = stageEnemies + stageTurns;
 		var rationRate = rationsPerStage / stageEnemies;
 
-		rations *= rationConsumption * rationRate;
-
-		if(stageClears > stagesCleared)
-			manpower = this.getLinks() * manpowerConsumption;
+		rations *= rationConsumption * rationRate;		
 
 		this.ammoConsumed += ammo;
 		ammoConsumed += ammo;
 
 		this.rationsConsumed += rations;
 		rationsConsumed += rations;
-
-		this.manpowerConsumed += manpower;
-		manpowerConsumed += manpower;
 	}
 
 	this.levelUp = function()
@@ -899,6 +902,14 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 			if(this.nexp >= toNextLevel)
 				this.levelUp();
 		}
+	}
+
+	this.consumeManpower = function()
+	{
+		var manpower = this.getLinks() * manpowerConsumption;
+
+		this.manpowerConsumed += manpower;
+		manpowerConsumed += manpower;
 	}
 }
 
