@@ -86,6 +86,7 @@
 				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
 					<tr>
 						<td> Link All <input type="checkbox" id="linkResources"> </td>
+						<td> Manpower: <input type="number" id="manpower" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
 						<td> Ammo: <input type="number" id="ammo" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
 						<td> Rations: <input type="number" id="rations" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
 						<td> Batteries: <input type="number" id="batteries" value="0" min="0" max="9999" step="1" disabled> </td>
@@ -138,6 +139,7 @@
 				<table cellspacing="6px" cellpadding="3px" border="0" align="center">
 					<tr>
 						<td> Resources Consumed = </td>
+						<td> Manpower: <input type="number" id="manpowerC" min="0" max="10000" disabled> </td>
 						<td> Ammo: <input type="number" id="ammoC" min="0" max="10000" disabled> </td>
 						<td> Rations: <input type="number" id="rationsC" min="0" max="10000" disabled> </td>
 						<td> Batteries (<i name="expText">Surplus</i>): <input type="number" id="batteriesC" min="0" max="9999" disabled> </td>
@@ -147,7 +149,7 @@
 				<br>
 
 				<div align="center">
-					<textarea id="consoleBox" align="right" cols="100" rows="10" disabled></textarea>
+					<textarea id="consoleBox" align="right" cols="120" rows="12" disabled></textarea>
 				</div>
 
 			</form>

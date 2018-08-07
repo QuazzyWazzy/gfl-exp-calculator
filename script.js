@@ -1,3 +1,13 @@
+var version = 1.1;
+var changeLog = [
+	[1.1, [
+		"Added manpower to resource calculation",
+		"Changed leader rules: Now you can assign only 1 leader on Corpse Drag Mode",
+		"Tweaked console size",
+		"Added changelogs"
+	]]
+];
+
 var combatReportEXP = 3000;
 var batteryPerReport = 3;
 
@@ -23,7 +33,7 @@ var stageEXP = [
 	["4-3E", 74, 370, 4, 0],
 	["5-4", 79, 380, 5, 0],
 	["5-2E", 87, 410, 5, 0],
-	["0-2", 100, 490, 5, 1],
+	["0-2", 100, 490, 5, 1]
 ];
 
 //Percentage to Decimal
@@ -42,6 +52,7 @@ var RFconsumption = [[15, 30], [25, 45], [35, 60], [45, 75], [55, 90]];
 var MGconsumption = [[40, 30], [65, 45], [90, 60], [115, 75], [140, 90]];
 var SGconsumption = [[30, 40], [45, 65], [60, 90], [75, 115], [90, 140]];
 
+var manpowerConsumption = 2;
 var ammoConsumption = 0.2;
 var rationConsumption = 0.1;
 
@@ -104,6 +115,7 @@ function generateCalculator()
 	}
 
 	resetConsole();
+	showChangeLog();
 }
 
 function resetCalculator()
@@ -147,7 +159,7 @@ function resetCalculator()
 function resetConsole()
 {
 	var consoleBox = document.getElementById("consoleBox");
-	consoleBox.innerHTML = " --------------------------------------\n Girl's Frontline EXP Calculator | v1.0\n --------------------------------------";
+	consoleBox.innerHTML = " --------------------------------------\n Girl's Frontline EXP Calculator | v" + version + "\n --------------------------------------";
 }
 
 var toggledElements = [];
@@ -217,17 +229,20 @@ function calculatorOnInput()
 	}
 
 	//Enable Resources
+	var manpower = document.getElementById("manpower");
 	var ammo = document.getElementById("ammo");
 	var rations = document.getElementById("rations");
 	var batteries = document.getElementById("batteries");
-
+	
 	var targetResource;
+
 	if(calcType == "useResources")
 		targetResource = true;
 	else
 		targetResource = false;
 
 	target.disabled = targetResource;
+	manpower.disabled = !targetResource;
 	ammo.disabled = !targetResource;
 	rations.disabled = !targetResource;
 	batteries.disabled = !targetResource;
@@ -303,13 +318,27 @@ function resourcesClick(x)
 {
 	if(document.getElementById("linkResources").checked)
 	{
+		var manpower = document.getElementById("manpower");
 		var ammo = document.getElementById("ammo");
 		var rations = document.getElementById("rations");
 	
-		if(x.id == ammo.id)
-			rations.value = ammo.value;
-		else
-			ammo.value = rations.value;
+		switch(x.id)
+		{
+			case manpower.id:
+				ammo.value = manpower.value;
+				rations.value = manpower.value;
+				break;
+
+			case ammo.id:
+				manpower.value = ammo.value;
+				rations.value = ammo.value;
+				break;
+
+			case rations.id:
+				manpower.value = rations.value;
+				ammo.value = rations.value;
+				break;
+		}
 	}
 }
 
@@ -334,6 +363,7 @@ var calculations = 0;
 var acquiredEXP = 0;
 var acquiredSurplus = 0;
 
+var manpowerConsumed = 0;
 var ammoConsumed = 0;
 var rationsConsumed = 0;
 var batteriesConsumed = 0;
@@ -362,6 +392,7 @@ function calculateBtn()
 	acquiredEXP = 0;
 	acquiredSurplus = 0;
 
+	manpowerConsumed = 0;
 	ammoConsumed = 0;
 	rationsConsumed = 0;
 	batteriesConsumed = 0;
@@ -429,17 +460,19 @@ function calculateBtn()
 
 	if(dolls.length == 0)
 	{
-		Log("[!] No dolls selected");
+		Log("[!] No dolls to calculate");
 		return;
 	}
 
-	if((corpseDrag && dollLeaders.length < 2) || dollLeaders.length < 1)
-	{
-		if(corpseDrag)
-			Log("[!] Corpse Drag Mode requires 2 leaders");
-		else
-			Log("[!] One leader must be assigned");
+	if(dollLeaders.length < 1)
+	{	
+		Log("[!] One leader must be assigned");
+		return;
+	}
 
+	if(corpseDrag && ((carry1Leader || carry2Leader) && dollLeaders.length < 2))
+	{
+		Log("[!] No leader is assigned after switching. Please select a second one");
 		return;
 	}
 
@@ -487,29 +520,36 @@ function calculationLoop()
 			c = 0;
 			totalBattles++;
 			
-			if(corpseDrag && stageClears > stagesCleared)
+			if(stageClears > stagesCleared)
 			{
-				var newCarry;
-				var newLeader;
+				if(corpseDrag)
+				{
+					var newCarry;
 
-				if(currentCarry == "carry1")
-					newCarry = "carry2";
-				else if(currentCarry == "carry2")
-					newCarry = "carry1";
+					if(currentCarry == "carry1")
+						newCarry = "carry2";
+					else if(currentCarry == "carry2")
+						newCarry = "carry1";
 
-				currentCarry = newCarry;
+					currentCarry = newCarry;
 
-				if(currentDollLeader == dollLeaders[0])
-					newLeader = dollLeaders[1];
-				else if(currentDollLeader == dollLeaders[1])
-					newLeader = dollLeaders[0];
+					var newLeader = currentDollLeader;
 
-				if(currentCarry == "carry1" && carry1Leader)
-					newLeader = 0;
-				else if(currentCarry == "carry2" && carry2Leader)
-					newLeader = 1;
+					if(dollLeaders.length > 1)
+					{
+						if(currentDollLeader == dollLeaders[0])
+							newLeader = dollLeaders[1];
+						else if(currentDollLeader == dollLeaders[1])
+							newLeader = dollLeaders[0];
+					}
 
-				currentDollLeader = newLeader;
+					if(currentCarry == "carry1" && carry1Leader)
+						newLeader = 0;
+					else if(currentCarry == "carry2" && carry2Leader)
+						newLeader = 1;
+
+					currentDollLeader = newLeader;
+				}
 				stagesCleared++;
 			}
 
@@ -612,6 +652,7 @@ function setResultValues()
 
 	batteries.value = batteriesConsumed;
 
+	document.getElementById("manpowerC").value = manpowerConsumed;
 	document.getElementById("ammoC").value = ammoConsumed;
 	document.getElementById("rationsC").value = Math.round(rationsConsumed);
 }
@@ -650,6 +691,8 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	this.nexp = cexp;
 	this.expAcquired = 0;
 	this.surplusEXP = 0;
+
+	this.manpowerConsumed = 0;
 	this.ammoConsumed = 0;
 	this.rationsConsumed = 0;
 	this.crConsumed = 0;
@@ -785,6 +828,7 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	{
 		var ammo = 0;
 		var rations = 0;
+		var manpower = 0;
 
 		switch(this.gunType)
 		{
@@ -828,11 +872,17 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 
 		rations *= rationConsumption * rationRate;
 
+		if(stageClears > stagesCleared)
+			manpower = this.getLinks() * manpowerConsumption;
+
 		this.ammoConsumed += ammo;
 		ammoConsumed += ammo;
 
 		this.rationsConsumed += rations;
 		rationsConsumed += rations;
+
+		this.manpowerConsumed += manpower;
+		manpowerConsumed += manpower;
 	}
 
 	this.levelUp = function()
@@ -858,4 +908,21 @@ function Log(string)
 	consoleBox.innerHTML += "\n [" + String(consoleNumber).padStart(numberDigits, "0") + "] " + string;
 	consoleBox.scrollTop = consoleBox.scrollHeight;
 	consoleNumber++;
+}
+
+function showChangeLog()
+{
+	for(i = 0; i < changeLog.length; i++)
+	{
+		var logVersion = "[v" + changeLog[i][0] + "]--";
+		var changes = changeLog[i][1];
+
+		for(j = 0; j < changes.length; j++)
+		{
+			if(j == 0)
+				Log(logVersion + changes[j]);
+			else
+				Log(changes[j].padStart(logVersion.length + changes[j].length, "-"));
+		} 
+	}
 }
