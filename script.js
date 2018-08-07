@@ -1,5 +1,10 @@
-var version = 1.2;
+var version = 1.3;
 var changeLog = [
+	[1.3, [
+		"Added Combat Simulations (EXP) and Sim Energy",
+		"EXP results now show a percentage value that represents how much EXP it is until next level",
+		"Some minor changes and tweaking"
+	]],
 	[1.2, [
 		"Tweaked manpower consumption"
 	]],
@@ -27,7 +32,7 @@ var leaderAndMvpBonus = 0.06;
 var levelEXP = [100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2800,3100,3400,4200,4600,5000,5400,5800,6300,6700,7200,7700,8200,8800,9300,9900,10500,11100,11800,12500,13100,13900,14600,15400,16100,16900,17700,18600,19500,20400,21300,22300,23300,24300,25300,26300,27400,28500,29600,30800,32000,33200,34400,45100,46800,48600,50400,52200,54000,55900,57900,59800,61800,63900,66000,68100,70300,72600,74800,77100,79500,81900,84300,112600,116100,119500,123100,126700,130400,134100,137900,141800,145700];
 var totalLevelEXP = [0,100,300,600,1000,1500,2100,2800,3600,4500,5500,6600,7800,9100,10500,12000,13600,15300,17100,19000,21000,23100,25300,27600,30000,32500,35100,37900,41000,44400,48600,53200,58200,63600,69400,75700,82400,89600,97300,105500,114300,123600,133500,144000,155100,166900,179400,192500,206400,221000,236400,252500,269400,287100,305700,325200,345600,366900,389200,412500,436800,462100,488400,515800,544300,573900,604700,636700,669900,704300,749400,796200,844800,895200,947400,1001400,1057300,1115200,1175000,1236800,1300700,1366700,1434800,1505100,1577700,1652500,1729600,1809100,1891000,1975300,2087900,2204000,2323500,2446600,2573300,2703700,2837800,2975700,3117500,3263200];
 
-// [0] Stage Name [1] Penalty Level [2] Base EXP [3] Amount of Enemies [4] Turns to Finish
+// [0] Stage Name [1] Penalty Level [2] Base EXP [3] Amount of Enemies [4] Turns to Finish [5] Is Combat Sim [6] Energy Consumption
 var stageEXP = [
 	["1-2", 14, 150, 4, 2],
 	["2-3", 29, 220, 4, 0],
@@ -36,8 +41,12 @@ var stageEXP = [
 	["4-3E", 74, 370, 4, 0],
 	["5-4", 79, 380, 5, 0],
 	["5-2E", 87, 410, 5, 0],
-	["0-2", 100, 490, 5, 1]
+	["0-2", 100, 490, 5, 1],
+	["Basic Training", 100, 20000, 1, 1, true, 1],
+	["Intermediate Training", 100, 80000, 1, 1, true, 2],
+	["Advanced Training", 100, 240000, 1, 1, true, 3]
 ];
+var combatSimMultiplier = 2;
 
 //Percentage to Decimal
 var regSurplusEXP = [0.03, 0.045, 0.06, 0.075, 0.09, 0.105, 0.12, 0.14, 0.16, 0.18, 0.2];
@@ -110,7 +119,7 @@ function generateCalculator()
 		for(i = 0; i < stageEXP.length; i++)
 		{
 			var stageName = stageEXP[i][0];
-			stageHTML += "<option value=" + stageName + ">" + stageName + "</option>"
+			stageHTML += '<option value="' + stageName + '">' + stageName + "</option>"
 		}
 
 		stage.innerHTML = stageHTML;
@@ -157,12 +166,13 @@ function resetCalculator()
 	consoleNumber = 0;
 
 	generateCalculator();
+	resetConsole();
 }
 
 function resetConsole()
 {
 	var consoleBox = document.getElementById("consoleBox");
-	consoleBox.innerHTML = " --------------------------------------\n Girl's Frontline EXP Calculator | v" + version + "\n --------------------------------------";
+	consoleBox.innerHTML = " " + drawLine(57) + "\n Girl's Frontline EXP Calculator | v" + version + " | By QuazzyWazzy\n " + drawLine(57);
 }
 
 var toggledElements = [];
@@ -236,6 +246,7 @@ function calculatorOnInput()
 	var ammo = document.getElementById("ammo");
 	var rations = document.getElementById("rations");
 	var batteries = document.getElementById("batteries");
+	var energy = document.getElementById("energy");
 	
 	var targetResource;
 
@@ -249,6 +260,7 @@ function calculatorOnInput()
 	ammo.disabled = !targetResource;
 	rations.disabled = !targetResource;
 	batteries.disabled = !targetResource;
+	energy.disabled = !targetResource;
 
 	//Toggle Corpse Drag Mode
 	var corpseDrag = document.getElementById("corpseDrag").checked;
@@ -370,11 +382,13 @@ var manpowerConsumed = 0;
 var ammoConsumed = 0;
 var rationsConsumed = 0;
 var batteriesConsumed = 0;
+var energyConsumed = 0;
 
 var dollLeaders = [];
 var currentDollLeader = 0;
 
 var nextToConsumeIndex = 0;
+var isCombatSim = false;
 
 function calculateBtn()
 {
@@ -399,6 +413,7 @@ function calculateBtn()
 	ammoConsumed = 0;
 	rationsConsumed = 0;
 	batteriesConsumed = 0;
+	energyConsumed = 0;
 
 	dollLeaders = [];
 	currentDollLeader = 0;
@@ -408,13 +423,15 @@ function calculateBtn()
 	var stage = document.getElementById("stage").value;
 
 	for(i = 0; i < stageEXP.length; i++)
-	{
+	{ 
 		if(stage == stageEXP[i][0])
 		{
-			stageIndex = i;
+			stageIndex = i; 
 			break;
 		}
 	}
+
+	isCombatSim = stageEXP[stageIndex][5]; 
 
 	var corpseDrag = document.getElementById("corpseDrag").checked;
 	var calcType = document.getElementById("calcType").value;
@@ -422,6 +439,8 @@ function calculateBtn()
 	var ammo = parseInt(document.getElementById("ammo").value);
 	var rations = parseInt(document.getElementById("rations").value);
 	var batteries = parseInt(document.getElementById("batteries").value);
+
+	var suppliedDolls = 0;
 
 	for(i = 0; i < amountOfDolls; i++)
 	{
@@ -456,6 +475,9 @@ function calculateBtn()
 			if(dollType == "carry2")
 				carry2Leader = true;
 		}
+
+		if(isSupplied)
+			suppliedDolls++;
 		
 		var doll = new TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, i);
 		dolls.push(doll);
@@ -463,27 +485,42 @@ function calculateBtn()
 
 	if(dolls.length == 0)
 	{
-		Log("[!] No dolls to calculate");
+		Log("[!] No dolls to calculate.");
 		return;
 	}
 
-	if(dollLeaders.length < 1)
-	{	
-		Log("[!] One leader must be assigned");
-		return;
-	}
+	if(suppliedDolls == 0)
+		Log("Note: There are no dolls supplied.");
 
-	if(corpseDrag && ((carry1Leader || carry2Leader) && dollLeaders.length < 2))
+	if(!isCombatSim)
 	{
-		Log("[!] No leader is assigned after switching. Please select a second one");
-		return;
+		if(dollLeaders.length < 1)
+		{	
+			Log("[!] One leader must be assigned.");
+			return;
+		}
+
+		if(corpseDrag && ((carry1Leader || carry2Leader) && dollLeaders.length < 2))
+		{
+			Log("[!] No leader is assigned after switching. Please select a second one.");
+			return;
+		}
+	}
+
+	if(isCombatSim)
+	{
+		if(dollLeaders.length > 0)
+			Log("Note: Leader dolls will not get bonus EXP from Combat Sim.");
+
+		if(corpseDrag)
+			Log("Note: Corpse Drag will switch carrries every run. It is not reommended for Combat Sim.");
 	}
 
 	toggleAll(true);
 	Log("Inputs Valid. Beginning Calculation.");
 	Log("Calculation Type: " + calcType + " | Stage Selected: " + stageEXP[stageIndex][0] + " | Dolls Active: " + dolls.length);
 	Log("EXP Boost: " + document.getElementById("expBoost").checked + " | Utilize Surplus EXP: " + document.getElementById("useSurplusEXP").checked + " | Corpse Drag Mode: " + corpseDrag);
-
+	
 	calculationLoop();
 }
 
@@ -522,6 +559,11 @@ function calculationLoop()
 		{
 			c = 0;
 			totalBattles++;
+
+			if(isCombatSim)
+				energyConsumed += stageEXP[stageIndex][6];
+
+			setResultValues();
 			
 			if(stageClears > stagesCleared)
 			{
@@ -555,8 +597,6 @@ function calculationLoop()
 				}
 				stagesCleared++;
 			}
-
-			setResultValues();
 			
 			if(calcType == "targetLevel" && dollsLeveled == dolls.length)
 			{
@@ -572,12 +612,26 @@ function calculationLoop()
 
 			if(calcType == "useResources")
 			{
+				var manpower = parseInt(document.getElementById("manpower").value);
 				var ammo = parseInt(document.getElementById("ammo").value);
 				var rations = parseInt(document.getElementById("rations").value);
 				var batteries = parseInt(document.getElementById("batteries").value);
+				var energy = parseInt(document.getElementById("energy").value);
 				var useSurplusEXP = document.getElementById("useSurplusEXP").checked;
 
-				if(ammoConsumed >= ammo || rationsConsumed >= rations || (useSurplusEXP && batteriesConsumed >= batteries))
+				if((manpowerConsumed >= manpower || ammoConsumed >= ammo || rationsConsumed >= rations) && !isCombatSim)
+				{
+					loopFinish();
+					return;
+				}
+
+				if((useSurplusEXP && batteriesConsumed >= batteries))
+				{
+					loopFinish();
+					return;
+				}
+
+				if(isCombatSim && energyConsumed >= energy)
 				{
 					loopFinish();
 					return;
@@ -600,7 +654,7 @@ function loopFinish()
 {
 	toggleAll(false);
 
-	Log("----------------------------------------------------------------------------");
+	Log(drawLine(100));
 
 	if(stopLoop)
 		Log("Calculation Stopped | Showing results of " + calculations + " calculations");
@@ -610,11 +664,24 @@ function loopFinish()
 	for(i = 0; i < dolls.length; i++)
 	{
 		var gunType = dolls[i].gunType.toUpperCase();
+		var resultText = "";
+		var expPercentage = Math.round((dolls[i].nexp / levelEXP[dolls[i].nlevel - 1]) * 100);
 
-		Log("Doll " + (i + 1) + " (" + gunType + ") Level: " + dolls[i].clevel + " - " + dolls[i].nlevel + ", EXP: " + dolls[i].nexp + ", Ammo: " + dolls[i].ammoConsumed + ", Rations: " + dolls[i].rationsConsumed + ", Reports Consumed: " + dolls[i].crConsumed);
+		if(dolls[i].nlevel == 100)
+			expPercentage = 100;
+
+		resultText += "Doll " + (i + 1) + " (" + gunType + ")";
+		resultText += " Level: " + dolls[i].clevel + " - " + dolls[i].nlevel;
+		resultText += ", EXP: " + dolls[i].nexp + " (" + expPercentage + "%)";
+		resultText += ", Manpower: " + dolls[i].manpowerConsumed;
+		resultText += ", Ammo: " + dolls[i].ammoConsumed;
+		resultText += ", Rations: " + dolls[i].rationsConsumed;
+		resultText += ", Reports Consumed: " + dolls[i].crConsumed;
+
+		Log(resultText);
 	}
 
-	Log("----------------------------------------------------------------------------");
+	Log(drawLine(100));
 	stopLoop = false;
 }
 
@@ -658,6 +725,7 @@ function setResultValues()
 	document.getElementById("manpowerC").value = manpowerConsumed;
 	document.getElementById("ammoC").value = ammoConsumed;
 	document.getElementById("rationsC").value = Math.round(rationsConsumed);
+	document.getElementById("energyC").value = energyConsumed;
 }
 
 function levelToEXP(level, EXP)
@@ -726,57 +794,67 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 
 	this.simulateBattle = function()
 	{
-		// [0] Stage Name [1] Penalty Level [2] Base EXP [3] Amount of Enemies
-		// Get Base EXP From Stage
-		var stage = stageEXP[stageIndex];
-		var penaltyLevel = stage[1];
-		var baseEXP = stage[2];
+		var totalEXP;
+
+		if(!isCombatSim)
+		{
+			// [0] Stage Name [1] Penalty Level [2] Base EXP [3] Amount of Enemies
+			// Get Base EXP From Stage
+			var stage = stageEXP[stageIndex];
+			var penaltyLevel = stage[1];
+			var baseEXP = stage[2];
 		
-		// Calculate Penalty EXP
-		var penaltyEXP = 0;
-		var penaltyMultiplier = 0;
+			// Calculate Penalty EXP
+			var penaltyEXP = 0;
+			var penaltyMultiplier = 0;
 
-		if(this.nlevel > penaltyLevel)	
-			penaltyMultiplier = Math.ceil((this.nlevel - penaltyLevel) / 10) * expPenalty;	
+			if(this.nlevel > penaltyLevel)	
+				penaltyMultiplier = Math.ceil((this.nlevel - penaltyLevel) / 10) * expPenalty;	
 
-		if(penaltyMultiplier >= 1)
-			penaltyEXP = minimumBaseEXP;
-		else
-			penaltyEXP = baseEXP * (1 - penaltyMultiplier);
+			if(penaltyMultiplier >= 1)
+				penaltyEXP = minimumBaseEXP;
+			else
+				penaltyEXP = baseEXP * (1 - penaltyMultiplier);
 
-		var totalEXP = penaltyEXP;
+			totalEXP = penaltyEXP;
 
-		//EXP Boost
-		if(document.getElementById("expBoost").checked)
-			totalEXP *= expBoost;
+			//EXP Boost
+			if(document.getElementById("expBoost").checked)
+				totalEXP *= expBoost;
 		
-		// Leader and MVP Bonuses
-		// Note: MVP is always the Carry Doll
-		var expMultiplier = 1;
+			// Leader and MVP Bonuses
+			// Note: MVP is always the Carry Doll
+			var expMultiplier = 1;
 
-		if(this.isLeader && this.index == currentDollLeader)
-			expMultiplier += leaderBonus;
+			if(this.isLeader && this.index == currentDollLeader)
+				expMultiplier += leaderBonus;
 
-		if(this.dollType != "regular")
-			expMultiplier += mvpBonus;
+			if(this.dollType != "regular")
+				expMultiplier += mvpBonus;
 
-		if(this.isLeader && this.dollType != "regular")
-			expMultiplier += leaderAndMvpBonus;
+			if(this.isLeader && this.dollType != "regular")
+				expMultiplier += leaderAndMvpBonus;
 
-		totalEXP *= expMultiplier;
-		totalEXP *= linkMultiplier[this.getLinks() - 1];
-		totalEXP = Math.round(totalEXP);
+			totalEXP *= expMultiplier;
+			totalEXP *= linkMultiplier[this.getLinks() - 1];
+			totalEXP = Math.round(totalEXP);
+		} else		
+			totalEXP = Math.round((stageEXP[stageIndex][2] * combatSimMultiplier) / dolls.length);
+
 		this.expAcquired += totalEXP;
 		acquiredEXP += totalEXP;
 
 		// Consume Resources
-		if(this.isSupplied)
-			this.consumeResources();
-
-		if(this.stagesCleared == stageClears)
+		if(!isCombatSim)
 		{
-			this.consumeManpower();
-			this.stagesCleared++;
+			if(this.isSupplied)
+				this.consumeResources();
+
+			if(this.stagesCleared == stageClears)
+			{
+				this.consumeManpower();
+				this.stagesCleared++;
+			}
 		}
 
 		var calcType = document.getElementById("calcType").value;
@@ -796,7 +874,7 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 			{
 				excessSurplusEXP += rsurplusEXP;
 
-				if((calcType == "targetLevel" && this.nlevel < target) || calcType != "targetLevel")
+				if((calcType == "targetLevel" && this.nexp < levelToEXP(target)) || calcType != "targetLevel")
 				{
 					var surplusCR = Math.floor(excessSurplusEXP / combatReportEXP);
 					var crEXP = surplusCR * combatReportEXP;
@@ -814,7 +892,7 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 					}
 				}
 
-				if(calcType == "targetLevel" && this.nlevel >= target && nextToConsumeIndex == this.index)
+				if(calcType == "targetLevel" && this.nexp >= levelToEXP(target) && nextToConsumeIndex == this.index)
 					nextToConsumeIndex++;
 			}
 
@@ -913,12 +991,26 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	}
 }
 
-function Log(string)
+function Log(string, isChangeLog)
 {
 	var consoleBox = document.getElementById("consoleBox");
-	consoleBox.innerHTML += "\n [" + String(consoleNumber).padStart(numberDigits, "0") + "] " + string;
+	var logText = "\n";
+
+	if(!isChangeLog)
+	{
+		logText += " [" + String(consoleNumber).padStart(numberDigits, "0") + "]";
+		consoleNumber++;
+	}
+
+	logText += " " + string;
+	consoleBox.innerHTML += logText;
+
 	consoleBox.scrollTop = consoleBox.scrollHeight;
-	consoleNumber++;
+}
+
+function drawLine(length)
+{
+	return "-".padStart(length - 1, "-");
 }
 
 function showChangeLog()
@@ -931,9 +1023,12 @@ function showChangeLog()
 		for(j = 0; j < changes.length; j++)
 		{
 			if(j == 0)
-				Log(logVersion + changes[j]);
+				Log(logVersion + changes[j], true);
 			else
-				Log(changes[j].padStart(logVersion.length + changes[j].length, "-"));
-		} 
+				Log(changes[j].padStart(logVersion.length + changes[j].length, "-"), true);
+		}
+
+		Log(drawLine(40), true);
 	}
+	document.getElementById("consoleBox").scrollTop = 0;
 }

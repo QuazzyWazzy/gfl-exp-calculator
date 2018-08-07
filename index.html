@@ -8,8 +8,11 @@
 				padding-right: 20;
 				padding-bottom: 20;
 				padding-left: 20;
-				}
-			 textarea { resize: none; }
+			}
+			 textarea { 
+				resize: none; 
+				white-space: pre;
+			}
      </style>
      <script type="text/javascript" src="script.js"></script>
    </head>
@@ -86,10 +89,11 @@
 				<table cellspacing="4px" cellpadding="4px" border="0" align="center">
 					<tr>
 						<td> Link All <input type="checkbox" id="linkResources"> </td>
-						<td> Manpower: <input type="number" id="manpower" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
-						<td> Ammo: <input type="number" id="ammo" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
-						<td> Rations: <input type="number" id="rations" value="0" min="0" max="10000" step="100" onclick="resourcesClick(this)" disabled> </td>
-						<td> Batteries: <input type="number" id="batteries" value="0" min="0" max="9999" step="1" disabled> </td>
+						<td> Manpower: <input type="number" id="manpower" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
+						<td> Ammo: <input type="number" id="ammo" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
+						<td> Rations: <input type="number" id="rations" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
+						<td> Batteries: <input type="number" id="batteries" value="0" min="0" max="9999" step="3" disabled> </td>
+						<td> Sim Energy: <input type="number" id="energy" value="0" min="0" max="9999" step="1" disabled> </td>
 					</tr>
 				</table>
 
@@ -139,10 +143,11 @@
 				<table cellspacing="6px" cellpadding="3px" border="0" align="center">
 					<tr>
 						<td> Resources Consumed = </td>
-						<td> Manpower: <input type="number" id="manpowerC" min="0" max="10000" disabled> </td>
-						<td> Ammo: <input type="number" id="ammoC" min="0" max="10000" disabled> </td>
-						<td> Rations: <input type="number" id="rationsC" min="0" max="10000" disabled> </td>
+						<td> Manpower: <input type="number" id="manpowerC" min="0" max="300000" disabled> </td>
+						<td> Ammo: <input type="number" id="ammoC" min="0" max="300000" disabled> </td>
+						<td> Rations: <input type="number" id="rationsC" min="0" max="300000" disabled> </td>
 						<td> Batteries (<i name="expText">Surplus</i>): <input type="number" id="batteriesC" min="0" max="9999" disabled> </td>
+						<td> Sim Energy: <input type="number" id="energyC" min="0" max="9999" disabled> </td>
 					</tr>
 				</table>
 				
