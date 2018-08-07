@@ -33,7 +33,7 @@ This mainly where you input how everything would be calculated. Think like butto
 
 * EXP Boost - Check this if there's an EXP Boost event. Otherwise, ignore it. Or not. There's not really much I can do if you *really* want to press it.
 
-* Utilize Surplus EXP - When enabled, all the Surplus EXP your dolls would generate throughout the calculation would be turned to Combat Reports that would then be fed to them one by one. Can save you a lot of time but would also require a bunch of batteries, depending on how much you make.
+* Utilize Surplus EXP - When enabled, all the Surplus EXP your dolls would generate throughout the calculation would be turned to Combat Reports that would then be fed to them one by one. Can save you a lot of time but would also require a bunch of batteries, depending on how much you make. When disabled, the reults (combat report hours, batches an batteries) will calculate EXP Acquired instead.
 
 * Ammo, Rations, and Batteries - This is where you can allocate resources for calculation. Check "Link All" to link Ammo and Rations values.
 
