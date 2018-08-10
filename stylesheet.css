@@ -31,7 +31,7 @@ input, select, textarea
 	font-size: 12px;
 }
 
-input:focus, input:hover, select:hover
+input:focus, input:hover, select:focus, select:hover
 {
 	box-shadow: 0 0 0 2px #009999;
 }
@@ -162,7 +162,7 @@ input[type=button]:active
   transform: rotate(45deg);
 }
 
-.checkbox, .button, input, select
+.checkbox, .checkbox + label:before, .button, input, select
 {
 	-webkit-transition-duration: 0.2s; 
 	-moz-transition-duration: 0.2s;
