@@ -1,0 +1,181 @@
+﻿body 
+{ 
+	font-family: Trebuchet MS;
+	color: #004d66;
+	background: #b3ecff;
+	padding: 20px;
+	
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+
+	min-width: 1100px;
+}
+
+.header
+{
+	margin-bottom: 20px;
+}
+
+textarea
+{ 
+	resize: none; 
+	white-space: pre;
+	width: 75%;
+}
+
+input, select, textarea
+{
+	color: #004d66;
+	background: #ccf2ff;
+	border: 2px solid #99e6ff;
+	border-radius: 10px;
+	padding: 2px;
+	padding-left: 5px;
+	outline: none;
+	font-size: 12px;
+}
+
+input:focus, input:hover, select:hover
+{
+	box-shadow: 0 0 0 2px #009999;
+}
+
+input:disabled
+{
+	color: black;
+	background: #66d9ff;
+	border: 2px solid #33ccff;
+}
+
+table, textarea
+{
+	border-color: #004d66;
+	border-width: 3px;
+	font-size: 14px;
+}
+
+td
+{
+	text-align: center;
+}
+
+#mainTable, #consoleBox
+{
+	height: 255px;
+	width: 1040px;
+
+	border-radius: 25px 0 0 0;
+}
+
+input[type=button]
+{
+	color: white;
+	background: #004d66;
+	padding: 5px;
+	font-size: 16px;
+}
+
+input[type=button]:active
+{
+	color: #004d66;
+	background: #b3ecff;
+}
+
+.tableSwitcher
+{
+	background: #004d66;
+	width: 1040px;
+	height: 20px;
+	position: relative;
+	border-bottom-left-radius: 25px;
+	border-bottom-right-radius: 25px;
+}
+
+#buttonSwitch
+{
+	border: none;
+	margin: 2px;
+	margin-right: 25px;
+}
+
+#buttonSwitch:hover, #buttonSwitch:focus, #buttonSwitch:active
+{
+	background: #004d66;
+	box-shadow: 0 0 0 0;
+}
+
+.highlight:focus 
+{
+	box-shadow: 0 0 0 2px #f90; 	
+}
+
+.checkbox {
+  position: absolute; 
+  opacity: 0; 
+}
+
+.checkbox + label {
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+
+.checkbox + label:before {
+  content: '';
+  margin-right: 10px;
+  display: inline-block;
+  vertical-align: text-top;
+  width: 20px;
+  height: 20px;
+  background: #ccf2ff;
+	border-radius: 6px;
+	box-shadow: 0 0 0 3px #99e6ff;
+}
+
+.checkbox:hover + label:before {
+  background: #80dfff;
+}
+  
+.checkbox:focus + label:before {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+}
+
+.checkbox:checked + label:before {
+  background: #33ccff;
+}
+  
+.checkbox:disabled + label {
+  cursor: auto;
+}
+
+.checkbox:disabled + label:before {
+  box-shadow: none;
+  background: #ddd;
+}
+
+.checkbox:checked + label:after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 9px;
+  background: white;
+  width: 2px;
+  height: 2px;
+  box-shadow: 
+    2px 0 0 white,
+    4px 0 0 white,
+    4px -2px 0 white,
+    4px -4px 0 white,
+    4px -6px 0 white,
+    4px -8px 0 white;
+  transform: rotate(45deg);
+}
+
+.checkbox + label, .button, input, select
+{
+	-webkit-transition-duration: 0.2s; 
+	-moz-transition-duration: 0.2s;
+	-o-transition-duration: 0.2s;
+	transition-duration: 0.2s;
+}

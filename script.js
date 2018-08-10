@@ -1,18 +1,26 @@
-var version = 1.3;
+var version = "2.0";
 var changeLog = [
-	[1.3, [
+	["2.0", [
+		"Complete CSS Redesign",
+		"Main Table and Console are now in one group",
+		"Added icon and changed title"
+	]],
+	["1.3", [
 		"Added Combat Simulations (EXP) and Sim Energy",
 		"EXP results now show a percentage value that represents how much EXP it is until next level",
 		"Some minor changes and tweaking"
 	]],
-	[1.2, [
+	["1.2", [
 		"Tweaked manpower consumption"
 	]],
-	[1.1, [
+	["1.1", [
 		"Added manpower to resource calculation",
 		"Changed leader rules: Now you can assign only 1 leader on Corpse Drag Mode",
 		"Tweaked console size",
 		"Added changelogs"
+	]],
+	["1.0", [
+		"Initial launch"
 	]]
 ];
 
@@ -87,29 +95,46 @@ function generateCalculator()
 	{
 		var mainTable = document.getElementById("mainTable").innerHTML;
 
-		for(i = 0; i < amountOfDolls - 1; i++)	
+		for(i = 1; i < amountOfDolls; i++) 
 			document.getElementById("mainTable").innerHTML += mainTable;
+			
+		var dollType = document.getElementsByName("dollType");
+		dollType[0].value = "carry1";
+		dollType[1].value = "carry2";
+
+		var isLeader = document.getElementsByName("isLeader");
+		var isSupplied = document.getElementsByName("isSupplied");
+
+		isSupplied[0].checked = true;
+
+		if(document.getElementById("corpseDrag").checked)
+			isSupplied[0].disabled = true;
+	
+		isSupplied[1].disabled = true;
+		isSupplied[1].checked = true;
+
+		var leaderCB = document.getElementsByClassName("leaderCB");
+		var suppliedCB = document.getElementsByClassName("suppliedCB");
+
+		for(i = 0; i < amountOfDolls; i++)
+		{ 
+			if(i > 1)
+				suppliedCB[i].innerHTML = '<input class="checkbox" type="checkbox" name="isSupplied">';
+
+			isLeader[i].id = "isLeader" + i;
+			isSupplied[i].id = "isSupplied" + i;
+
+			leaderCB[i].innerHTML += '<label for="' + isLeader[i].id + '"> Is Leader </label>';
+			suppliedCB[i].innerHTML += '<label for="' + isSupplied[i].id + '"> Is Supplied </label>'; 
+		}
 
 		mainTableGenerated = true;
 	}
 
-	var dollType = document.getElementsByName("dollType");
-	dollType[0].value = "carry1";
-	dollType[1].value = "carry2";
-
-	var isSupplied = document.getElementsByName("isSupplied");
-	isSupplied[0].checked = true;
-
-	if(document.getElementById("corpseDrag").checked)
-		isSupplied[0].disabled = true;
-
-	isSupplied[1].checked = true;
-	isSupplied[1].disabled = true;
-
-	var isLeader = document.getElementsByName("isLeader");
-	for(i = 0; i < isLeader.length; i++)	
-		isLeader[i].id = "isLeader" + i;
-
+	resetConsole();
+	showChangeLog();
+ 
+	document.getElementById("consoleDiv").style.display = "none";
 	//Stages
 	if(!stagesLoaded)
 	{
@@ -125,9 +150,6 @@ function generateCalculator()
 		stage.innerHTML = stageHTML;
 		stagesLoaded = true;
 	}
-
-	resetConsole();
-	showChangeLog();
 }
 
 function resetCalculator()
@@ -165,7 +187,15 @@ function resetCalculator()
 
 	consoleNumber = 0;
 
-	generateCalculator();
+	isSupplied[0].checked = true;
+
+	if(document.getElementById("corpseDrag").checked)
+		isSupplied[0].disabled = true;
+	
+	isSupplied[1].disabled = true;
+	isSupplied[1].checked = true;
+
+	
 	resetConsole();
 }
 
@@ -186,7 +216,7 @@ function toggleAll(toggle)
 
 		for(i = 0; i < elements.length; i++)	
 		{
-			if(!elements[i].disabled && elements[i].id != "stop")
+			if(!elements[i].disabled && elements[i].id != "stop" && elements[i].id != "buttonSwitch")
 			{
 				elements[i].disabled = true;
 				toggledElements.push(elements[i]);
@@ -315,6 +345,32 @@ function calculatorOnInput()
 	validateValues();
 }
 
+function displayConsole()
+{
+	var mainDiv = document.getElementById("mainDiv").style;
+	var consoleDiv = document.getElementById("consoleDiv").style;
+	var buttonSwitch = document.getElementById("buttonSwitch");
+
+	mainDiv.display = "none";
+	consoleDiv.display = "block";
+	buttonSwitch.value = "Show Table";
+}
+
+function switchClick(x)
+{
+	var mainDiv = document.getElementById("mainDiv").style;
+	var consoleDiv = document.getElementById("consoleDiv").style;
+
+	if(x.value == "Show Console")
+		displayConsole();
+	else
+	{
+		mainDiv.display = "block";
+		consoleDiv.display = "none";
+		x.value = "Show Console";
+	}
+}
+
 function isLeaderClick(x)
 {
 	if(x.checked)
@@ -441,6 +497,8 @@ function calculateBtn()
 	var batteries = parseInt(document.getElementById("batteries").value);
 
 	var suppliedDolls = 0;
+
+	displayConsole();
 
 	for(i = 0; i < amountOfDolls; i++)
 	{
@@ -648,11 +706,13 @@ function calculationLoop()
 function stopCalculation()
 {
 	stopLoop = true;
+	displayConsole();
 }
 
 function loopFinish()
 {
 	toggleAll(false);
+	displayConsole();
 
 	Log(drawLine(100));
 
