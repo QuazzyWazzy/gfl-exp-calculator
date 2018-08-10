@@ -9,6 +9,9 @@ Made especially to calculate corpse-dragging method efficiency.
 ### The Main Table
 This table has 6 rows of different doll properties, with each row being a different doll. This table will be your echelon. The table has two modes: Corpse Drag Mode and Normal Mode (We'll get on to that later).
 
+### The Console
+This is where all the messages are logged and also shows the results of the calculation.
+
 #### Doll Properties
 * Gun Type - Specifies the gun type of the doll. Determines how much resources a doll would consume ber battle.
 
@@ -56,11 +59,5 @@ Now, if corpse dragging is enabled, a few other stuff happens during the calcula
 
 Every stage clear, the carry dolls (and leaders) are interchanged (just like in-game). In normal mode, the row for the 2nd carry doll is disabled since it is only ever used when switching carries. 
 
-#### The Results and Console
+#### The Results
 Displays the output of the calculation.
-
-<br>
-<br>
-<br>
-
-Yeah, that's pretty much it. I might update this with new stuff and optimize some parts of the code. (Actually I was also gonna add manpower, parts and repair tickets to resources but there's too many factors to determine how many repairs it would take per run)
