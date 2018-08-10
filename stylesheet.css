@@ -100,11 +100,6 @@ input[type=button]:active
 	box-shadow: 0 0 0 0;
 }
 
-.highlight:focus 
-{
-	box-shadow: 0 0 0 2px #f90; 	
-}
-
 .checkbox {
   position: absolute; 
   opacity: 0; 
