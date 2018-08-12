@@ -1,5 +1,11 @@
-var version = "2.0";
+var version = "2.1";
 var changeLog = [
+	["2.1", [
+		"Added user-friendly tooltips.",
+		"Added calculator adjudant, M249 SAW-chan",
+		"Tweaked calculation loop. Now 2-6x faster than before.",
+		"Other minor changes and tweaking."
+	]],
 	["2.0", [
 		"Complete CSS Redesign",
 		"Main Table and Console are now in one group",
@@ -88,6 +94,9 @@ var stagesLoaded = false;
 var consoleNumber = 0;
 var numberDigits = 3;
 
+var idleGif = "assets/M249SAW_wait.gif";
+var movingGif = "assets/M249SAW_move.gif";
+
 function generateCalculator()
 {
 	//Main Table
@@ -124,8 +133,8 @@ function generateCalculator()
 			isLeader[i].id = "isLeader" + i;
 			isSupplied[i].id = "isSupplied" + i;
 
-			leaderCB[i].innerHTML += '<label for="' + isLeader[i].id + '"> Is Leader </label>';
-			suppliedCB[i].innerHTML += '<label for="' + isSupplied[i].id + '"> Is Supplied </label>'; 
+			leaderCB[i].innerHTML += '<label for="' + isLeader[i].id + '"> <div class="tooltip"> Is Leader <span class="tooltiptext"> Minimum of one leader is required. Corpse dragging can have two interchanging leaders. Leaders also get 20% bonus EXP. </span> </div> </label>';
+			suppliedCB[i].innerHTML += '<label for="' + isSupplied[i].id + '"> <div class="tooltip"> Is Supplied <span class="tooltiptext"> Supplied dolls will consume Ammo and Rations. </span> </div> </label>'; 
 		}
 
 		mainTableGenerated = true;
@@ -203,6 +212,7 @@ function resetConsole()
 {
 	var consoleBox = document.getElementById("consoleBox");
 	consoleBox.innerHTML = " " + drawLine(57) + "\n Girl's Frontline EXP Calculator | v" + version + " | By QuazzyWazzy\n " + drawLine(57);
+	consoleNumber = 0;
 }
 
 var toggledElements = [];
@@ -240,8 +250,19 @@ function validateValues()
 
 		if(parseInt(elements[i].value) > parseInt(elements[i].max))
 			elements[i].value = parseInt(elements[i].max);
+	}
+}
 
-		if(parseInt(elements[i].value) < parseInt(elements[i].min) || (elements[i].value == "" && !elements[i].disabled))
+function setMinValues()
+{
+	var elements = document.body.getElementsByTagName("*");
+
+	for(i = 0; i < elements.length; i++)
+	{
+		if(elements[i].type != "number")
+			continue;
+
+		if(parseInt(elements[i].value) < parseInt(elements[i].min))
 			elements[i].value = parseInt(elements[i].min);
 	}
 }
@@ -253,10 +274,15 @@ function calculatorOnInput()
 	var targetText = document.getElementById("targetText");
 	var target = document.getElementById("target");
 
-	if(calcType == "targetLevel")	
+	if(calcType == "targetLevel")
+	{
 		targetText.innerHTML = "Target Level: ";
-	else if(calcType == "executeRuns")
+		target.max = 100;
+	} else if(calcType == "executeRuns")
+	{
 		targetText.innerHTML = "Amount of Runs: ";
+		target.max = 9999;
+	}
 
 	//Link Dorm Room Level
 	var linkDR = document.getElementById("linkDR");
@@ -445,6 +471,7 @@ var currentDollLeader = 0;
 
 var nextToConsumeIndex = 0;
 var isCombatSim = false;
+var isCalculating = false;
 
 function calculateBtn()
 {
@@ -499,6 +526,7 @@ function calculateBtn()
 	var suppliedDolls = 0;
 
 	displayConsole();
+	setMinValues();
 
 	for(i = 0; i < amountOfDolls; i++)
 	{
@@ -537,7 +565,7 @@ function calculateBtn()
 		if(isSupplied)
 			suppliedDolls++;
 		
-		var doll = new TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, i);
+		var doll = new TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, dolls.length);
 		dolls.push(doll);
 	}
 
@@ -574,7 +602,10 @@ function calculateBtn()
 			Log("Note: Corpse Drag will switch carrries every run. It is not reommended for Combat Sim.");
 	}
 
+	setGif(movingGif);
 	toggleAll(true);
+	isCalculating = true;
+
 	Log("Inputs Valid. Beginning Calculation.");
 	Log("Calculation Type: " + calcType + " | Stage Selected: " + stageEXP[stageIndex][0] + " | Dolls Active: " + dolls.length);
 	Log("EXP Boost: " + document.getElementById("expBoost").checked + " | Utilize Surplus EXP: " + document.getElementById("useSurplusEXP").checked + " | Corpse Drag Mode: " + corpseDrag);
@@ -597,7 +628,23 @@ function calculationLoop()
 	var calcType = document.getElementById("calcType").value;
 
 	setTimeout( function () {
-		
+
+		for(i = 0; i < dolls.length; i++)
+		{
+			var dollType = dolls[i].dollType;
+
+			if((corpseDrag && (dollType == "regular" || dollType == currentCarry)) || !corpseDrag)
+				dolls[i].simulateBattle();
+
+			if(calcType == "targetLevel" && dolls[i].nlevel >= target)
+				dollsLeveled++;
+
+			dolls[i].rationsConsumed = Math.round(dolls[i].rationsConsumed);
+
+			calculations++;
+		}
+
+		/* Old Calculation
 		var dollType = dolls[c].dollType;
 
 		if((corpseDrag && (dollType == "regular" || dollType == currentCarry)) || !corpseDrag)
@@ -608,13 +655,13 @@ function calculationLoop()
 
 		dolls[c].rationsConsumed = Math.round(dolls[c].rationsConsumed);
 
-		c++;
 		calculations++;
+		c++;
 		
 		if(c < dolls.length)
 			calculationLoop();
 		else
-		{
+		{*/
 			c = 0;
 			totalBattles++;
 
@@ -698,15 +745,19 @@ function calculationLoop()
 			
 			dollsLeveled = 0;
 			calculationLoop();				
-		}
+		//} Old Calculation
 
 	}, loopDelay);
 }
 
 function stopCalculation()
 {
-	stopLoop = true;
-	displayConsole();
+	if(isCalculating)
+	{
+		stopLoop = true;
+		displayConsole();
+		setGif(idleGif);
+	}
 }
 
 function loopFinish()
@@ -743,6 +794,8 @@ function loopFinish()
 
 	Log(drawLine(100));
 	stopLoop = false;
+	isCalculating = false;
+	setGif(idleGif);
 }
 
 function setResultValues()
@@ -1068,6 +1121,12 @@ function Log(string, isChangeLog)
 	consoleBox.scrollTop = consoleBox.scrollHeight;
 }
 
+function LogImportant(string)
+{
+	Log(string);
+	displayConsole();
+}
+
 function drawLine(length)
 {
 	return "-".padStart(length - 1, "-");
@@ -1088,9 +1147,55 @@ function showChangeLog()
 				Log(changes[j].padStart(logVersion.length + changes[j].length, "-"), true);
 		}
 
-		Log(drawLine(40), true);
+		Log(drawLine(80), true);
 	}
 	document.getElementById("consoleBox").scrollTop = 0;
 }
-//Dummy Commit
 
+var lastRandom = 0;
+var idleMessage = ["Where do you think you're poking at?", "Don't you have anything else to do?", "D-don't touch me there, commander", "I really want a fluffy body pillow", "Boring...", "Ugghh...", "Please don't make me work", "Get those numbers crunching", "Got any results yet?", "Is there anything you want, commander?", "Don't expect too much of me..."];
+var movingMessage = ["Here we go again", "Please be patient, commander", "This may take a while", "Why don't you sit there and wait?", "You're distracting me, commander", "I hate doing math... or doing anything in general", "I wanna go to bed already"];
+
+function randomizeText()
+{
+	var randomText = document.getElementById("randomText");
+	var text = "";
+	var random = 0;
+
+	if(!isCalculating)
+	{
+		random = Math.floor(Math.random() * idleMessage.length);
+
+		while (random == lastRandom) 
+			random = Math.floor(Math.random() * idleMessage.length);
+
+		text = idleMessage[random];
+	} else
+	{
+		random = Math.floor(Math.random() * movingMessage.length);
+
+		while (random == lastRandom) 
+			random = Math.floor(Math.random() * movingMessage.length);
+
+		text = movingMessage[random];
+	}
+
+	lastRandom = random;
+	randomText.innerHTML = text; 
+}
+
+
+function setGif(url)
+{
+	var img = new Image();
+	var topLeftGif = document.getElementById("topLeftGif");
+
+	img.onload = function()
+	{
+		topLeftGif.src = url;
+		topLeftGif.width = this.width;
+		topLeftGif.height = this.height;
+	};
+
+	img.src = url;
+}
