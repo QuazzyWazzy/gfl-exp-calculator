@@ -1,4 +1,5 @@
-﻿body { 
+﻿body 
+{ 
 	font-family: Trebuchet MS;
 	color: #004d66;
 	background: linear-gradient(#b3ecff, #e6f9ff);
@@ -11,13 +12,35 @@
 	min-width: 1600px;
 }
 
-textarea { 
+.calculator 
+{
+	opacity: 0;
+}
+
+.calculator.show
+{
+	-webkit-transition-delay: 0.3s; 
+	-moz-transition-delay: 0.3s;
+	-o-transition-delay: 0.3s;
+	transition-delay: 0.3s;
+
+	-webkit-transition-duration: 1s; 
+	-moz-transition-duration: 1s;
+	-o-transition-duration: 1s;
+	transition-duration: 1s;
+
+	opacity: 1;
+}
+
+textarea 
+{ 
 	resize: none; 
 	white-space: pre;
 	width: 75%;
 }
 
-input, select, textarea {
+input, select, textarea 
+{
 	color: #004d66;
 	background: #ccf2ff;
 	border: 2px solid #99e6ff;
@@ -28,17 +51,20 @@ input, select, textarea {
 	font-size: 12px;
 }
 
-input:focus, input:hover, select:focus, select:hover {
+input:focus, input:hover, select:focus, select:hover 
+{
 	box-shadow: 0 0 0 2px #009999;
 }
 
-input:disabled, select:disabled {
+input:disabled, select:disabled 
+{
 	color: black;
 	background: #b3ecff;
 	border: 2px solid #33ccff;
 }
 
-table, textarea {
+table, textarea 
+{
 	border-color: #004d66;
 	border-width: 3px;
 	font-size: 14px;
@@ -48,26 +74,30 @@ td {
 	text-align: center;
 }
 
-#mainTable, #consoleBox {
+#mainTable, #consoleBox 
+{
 	height: 255px;
 	width: 1040px;
 	background: #b3ecff;
 	border-radius: 25px 0 0 0;
 }
 
-input[type=button] {
+input[type=button] 
+{
 	color: white;
 	background: #004d66;
 	padding: 5px;
 	font-size: 16px;
 }
 
-input[type=button]:active {
+input[type=button]:active 
+{
 	color: #004d66;
 	background: #b3ecff;
 }
 
-.tableSwitcher {
+.tableSwitcher 
+{
 	background: #004d66;
 	width: 1040px;
 	height: 20px;
@@ -76,29 +106,34 @@ input[type=button]:active {
 	border-bottom-right-radius: 25px;
 }
 
-#buttonSwitch {
+#buttonSwitch 
+{
 	border: none;
 	margin: 2px;
 	margin-right: 25px;
 }
 
-#buttonSwitch:hover, #buttonSwitch:focus, #buttonSwitch:active {
+#buttonSwitch:hover, #buttonSwitch:focus, #buttonSwitch:active 
+{
 	background: #004d66;
 	box-shadow: 0 0 0 0;
 }
 
-.checkbox {
+.checkbox 
+{
 	position: absolute; 
 	opacity: 0; 
 }
 
-.checkbox + label {
+.checkbox + label 
+{
 	position: relative;
 	cursor: pointer;
 	padding: 0;
 }
 
-.checkbox + label:before {
+.checkbox + label:before 
+{
 	content: '';
 	margin-right: 10px;
 	display: inline-block;
@@ -110,28 +145,34 @@ input[type=button]:active {
 	box-shadow: 0 0 0 3px #99e6ff;
 }
 
-.checkbox:hover + label:before {
+.checkbox:hover + label:before 
+{
 	background: #80dfff;
 }
   
-.checkbox:focus + label:before {
+.checkbox:focus + label:before 
+{
 	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
 }
 
-.checkbox:checked + label:before {
+.checkbox:checked + label:before 
+{
 	background: #00bfff;
 }
   
-.checkbox:disabled + label {
+.checkbox:disabled + label 
+{
 	cursor: auto;
 }
 
-.checkbox:disabled + label:before {
+.checkbox:disabled + label:before 
+{
 	box-shadow: none;
 	background: #66d9ff;
 }
 
-.checkbox:checked + label:after {
+.checkbox:checked + label:after 
+{
 	content: '';
 	position: absolute;
 	left: 5px;
@@ -149,12 +190,14 @@ input[type=button]:active {
 	transform: rotate(45deg);
 }
 
-.tooltip {
+.tooltip 
+{
 	position: relative;
 	display: inline-block;
 }
 
-.tooltip .tooltiptext {
+.tooltip .tooltiptext 
+{
 	visibility: hidden;
 	width: 200px;
 	background-color: #002633;
@@ -176,7 +219,8 @@ input[type=button]:active {
 	transition-delay: 0.3s;
 }
 
-.tooltip .tooltiptext:after {
+.tooltip .tooltiptext:after 
+{
 	content: "";
 	position: absolute;
 	bottom: 100%;
@@ -187,24 +231,28 @@ input[type=button]:active {
 	border-color: transparent transparent black transparent;
 }
 
-.tooltip:hover .tooltiptext {
+.tooltip:hover .tooltiptext 
+{
 	padding: 7px;
 	visibility: visible;
 	opacity: 1;
 }
 
-.checkbox, .checkbox + label:before, .button, input, select, .tooltip .tooltiptext {
+.checkbox, .checkbox + label:before, .button, input, select, .tooltip .tooltiptext
+{
 	-webkit-transition-duration: 0.2s; 
 	-moz-transition-duration: 0.2s;
 	-o-transition-duration: 0.2s;
 	transition-duration: 0.2s;
 }
 
-.topLeftGif {
+.topLeftGif 
+{
 	position: relative;
 }
 
-.topLeftGif.calculating {
+.topLeftGif.calculating 
+{
 	content: url(assets/M249SAW_move.gif);
 	width: 173px;
 	height: 178px;

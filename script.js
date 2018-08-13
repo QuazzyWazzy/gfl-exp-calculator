@@ -1,5 +1,9 @@
-var version = "2.1";
+var version = "2.2";
 var changeLog = [
+	["2.2", [
+		"Fixed a manpower consumption bug when corpse dragging",
+		"Some other minor changes"
+	]],
 	["2.1", [
 		"Added user-friendly tooltips.",
 		"Added calculator adjudant, M249 SAW-chan",
@@ -94,6 +98,7 @@ var stagesLoaded = false;
 var consoleNumber = 0;
 var numberDigits = 3;
 
+var images = [];
 var idleGif = "assets/M249SAW_wait.gif";
 var movingGif = "assets/M249SAW_move.gif";
 
@@ -142,8 +147,11 @@ function generateCalculator()
 
 	resetConsole();
 	showChangeLog();
- 
+	preloadImages([idleGif, movingGif]);
+	
 	document.getElementById("consoleDiv").style.display = "none";
+	document.getElementsByClassName("calculator")[0].classList.add("show");
+
 	//Stages
 	if(!stagesLoaded)
 	{
@@ -204,7 +212,6 @@ function resetCalculator()
 	isSupplied[1].disabled = true;
 	isSupplied[1].checked = true;
 
-	
 	resetConsole();
 }
 
@@ -640,6 +647,7 @@ function calculationLoop()
 				dollsLeveled++;
 
 			dolls[i].rationsConsumed = Math.round(dolls[i].rationsConsumed);
+			dolls[i].consumeManpower();
 
 			calculations++;
 		}
@@ -661,16 +669,15 @@ function calculationLoop()
 		if(c < dolls.length)
 			calculationLoop();
 		else
-		{*/
-			c = 0;
+		{
+			c = 0;*/
 			totalBattles++;
+			setResultValues();
 
 			if(isCombatSim)
 				energyConsumed += stageEXP[stageIndex][6];
-
-			setResultValues();
 			
-			if(stageClears > stagesCleared)
+			if(stagesCleared < stageClears)
 			{
 				if(corpseDrag)
 				{
@@ -711,7 +718,7 @@ function calculationLoop()
 
 			if(calcType == "executeRuns" && stageClears == target)
 			{
-				loopFinish();
+				loopFinish(); 
 				return;
 			}
 
@@ -875,7 +882,7 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	this.nexp = cexp;
 	this.expAcquired = 0;
 	this.surplusEXP = 0;
-	this.stagesCleared = 0;
+	this.stagesCleared = -1;
 
 	this.manpowerConsumed = 0;
 	this.ammoConsumed = 0;
@@ -962,12 +969,12 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 		{
 			if(this.isSupplied)
 				this.consumeResources();
-
-			if(this.stagesCleared == stageClears)
+			/*
+			if(this.stagesCleared < stageClears)
 			{
 				this.consumeManpower();
-				this.stagesCleared++;
-			}
+				this.stagesCleared = stageClears;
+			}*/
 		}
 
 		var calcType = document.getElementById("calcType").value;
@@ -1097,10 +1104,15 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 
 	this.consumeManpower = function()
 	{
-		var manpower = this.getLinks() * manpowerConsumption;
+		if(!isCombatSim && this.stagesCleared < stageClears)
+		{
+			var manpower = this.getLinks() * manpowerConsumption;
 
-		this.manpowerConsumed += manpower;
-		manpowerConsumed += manpower;
+			this.manpowerConsumed += manpower;
+			manpowerConsumed += manpower;
+
+			this.stagesCleared++;
+		}
 	}
 }
 
@@ -1184,6 +1196,18 @@ function randomizeText()
 	randomText.innerHTML = text; 
 }
 
+function preloadImages(imageArray)
+{
+	for(i = 0; i < imageArray.length; i++)
+	{
+		var img = new Image();
+		img.src = imageArray[i];
+		img.onload = function()
+		{
+			images.push(this);
+		};
+	}
+}
 
 function setGif(url)
 {
