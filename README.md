@@ -5,7 +5,7 @@ An EXP Calculator for the mobile game, Girls Frontline. Made especially to calcu
 
 ## How Does it Work
 ### Battle Simulations
-The calculator will run battle simulations of the selected stage using the dolls on the main table that would act as an echelon. These simulations would be treated as if the echelon has completed the stage, regardless of whether or not they can actually complete it in-game. These simulations are only for the sake of calculating EXP and how many resources it would consume per run. 
+The calculator will run battle simulations of the selected stage using the dolls on the main table that would act as an echelon. These simulations would be treated as if the echelon has completed the stage, regardless of whether or not they can actually complete it in-game. These simulations are only for the sake of calculating EXP and the amount of resources consumed per run. 
 
 ### Calculation Type
 The conditions for the calculation will vary based on the selected calculation type.
