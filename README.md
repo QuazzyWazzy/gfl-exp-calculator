@@ -70,6 +70,6 @@ The downmost part of the page. This part displays live data incrementing through
 
 ## Other Things
 ### Calculator Adjudant
-Her main purpose is to display if the calculator is calculating by displaying whether or not she's running.
+Her main purpose is to show if the calculator is calculating.
 
 Why does she have dialogue, you ask? Well... I got bored, okay? (plus I like her personality OwO)
