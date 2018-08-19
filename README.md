@@ -1,63 +1,75 @@
 # Girl's Frontline EXP Calculator
-An EXP Calculator for the mobile game, Girls Frontline.
+An EXP Calculator for the mobile game, Girls Frontline. Made especially to calculate corpse-dragging method efficiency.
 
-Made especially to calculate corpse-dragging method efficiency.
+---
 
-<br>
-  
-## How to Use:
-### The Main Table
-This table has 6 rows of different doll properties, with each row being a different doll. This table will be your echelon. The table has two modes: Corpse Drag Mode and Normal Mode (We'll get on to that later).
+## How Does it Work
+### Battle Simulations
+The calculator will run battle simulations of the selected stage using the dolls on the main table that would act as an echelon. These simulations would be treated as if the echelon has completed the stage, regardless of whether or not they can actually complete it in-game. These simulations are only for the sake of calculating EXP and how many resources it would consume per run. 
 
+### Calculation Type
+The conditions for the calculation will vary based on the selected calculation type.
+
+* Reach Target Level will run simulations until all dolls in the echelon reach the target level.
+* Execute Amount of Runs will run simulations based on the amount of runs specified.
+* Use Resources Allocated will run simulations based on the amount of resources allocated.
+
+### Carry Dolls and Corpse Drag Mode
+The usual corpse dragging requires two damage dealers (particularly an AR) that are interchanged every run to save resources. When Corpse Drag mode is enabled, the calculator would imitate this process by interchanging the carry doll used in every run. When disabled, the 6th doll (the 2nd Carry Doll) would also be disabled since it can only ever be used when corpse dragging.
+
+Note: Carry dolls would be treated as if they are the MVP for that battle, thus gaining bonus EXP. This applies whether or not Corpse Drag Mode is enabled.
+
+Another Note: If a carry doll is set as a leader, and corpse dragging is enabled, you are required to set another leader since carry dolls are interchanged per turn.
+
+### Use Surplus EXP
+Apart from getting EXP from battles, dolls also generate a small amount of surplus EXP. Surplus EXP generation will vary based on the selected stage and the specified data room level.
+
+When Use Surplus EXP is enabled, this surplus EXP generated from battle will be turned into combat reports that would then be distributed to each doll throughout the calculation process. This can be helpful as it can decrease the amount of turns needed to level your dolls, but it will also require a lot of batteries, depending on the amount of surplus EXP.
+
+---
+
+## How to Use
+### Putting Dolls in the Main Table
+The very first step is to fill in the table with the necessary information. Each row represents one doll, and the table as a whole is treated as an echelon. If corpse dragging, put your damage dealers on the same row where 1st and 2nd Carry Doll types are. If not, place your MVP doll on the same row as the 1st Carry Doll type.
+
+Also make sure to put in the current level and EXP for every doll. Links correspond the amount of the dummy links the doll has. Setting this on auto will dynamically add links to that doll as it levels throughout the calculation (Example, you have a level 8 doll with only 1 link. When this doll reaches level 10, another link would be added to this doll). If you don't plan on dummy linking a particular doll, you can specify a static dummy link number instead.
+
+### Choosing the Stage
+Here you can choose what stage the battle simulations would take place in. Ideal corpse dragging spots are 4-3E and 0-2. More information about selecting the right stage can be found on [Dmesse's Popular Leveling Routes](http://dmesse.egloos.com/3567918). Make sure your selected stage's level range matches with your echelon's average level. EXP Penalty can greatly decrease the amount of EXP generated per battle, which wastes more resources and requires even more runs.
+
+In addition to the stages available, there are also Combat Simulations. These require Sim Energy instead of the usual resources and provide more EXP than regular stages. Do note that every Combat Sim is treated as if the whole stage is cleared, meaning the amount of base EXP is doubled every turn.
+
+### Choosing a Calculation Type, Using Surplus EXP, and Enabling Corpse Drag Mode
+This has already been explained. Please refer above.
+
+### Data Room Level and Data Room Components
+This will determine the speed and the amount of surplus EXP you will generate per battle, and also the amount and time it takes to create combat reports. This is only useful if Use Surplus EXP is enabled.
+
+### Resources
+This is where you can allocate resources for calculation. Do note that if you have Use Surplus EXP enabled, make sure you also allocate a sufficient amount of batteries for combat reports.
+
+Also remember that Combat Sim requires Sim Energy.
+
+* Basic Traing = 1 energy
+* Intermediate Training = 2 energy
+* Advanced Training = 3 energy
+
+---
+
+## Calculation Results
 ### The Console
-This is where all the messages are logged and also shows the results of the calculation.
+The console displays warnings and is also where most of the results is outputted. The console also contains the changelog.
 
-#### Doll Properties
-* Gun Type - Specifies the gun type of the doll. Determines how much resources a doll would consume ber battle.
+### The Graph
+This line graph shows the level growth of the dolls throughout the calculation. There are a few settings below the graph that you can tweak to change how the data is visualized.
 
-* Doll Type - This property can't be changed but it is very important. This property has three types: 1st Carry, 2nd Carry, and Regular. 1st and 2nd Carries are the dolls that mainly do the damage when corpse dragging. When corpse dragging is off, 2nd Carry would be disabled. (Note: Carry dolls will always have the MVP Bonus EXP. Make sure to put the right dolls)
+### The Results Table
+The downmost part of the page. This part displays live data incrementing throughout the calculation.
 
-* Current Level and Current EXP: Pretty self-explanatory.
+---
 
-* Is Leader: Check this if that doll is your assigned leader. (Leaders get bonus EXP). When corpse dragging, you need atleast 2 leaders (Ideally you would want to make your carry dolls the leader)
+## Other Things
+### Calculator Adjudant
+Her main purpose is to display if the calculator is calculating by displaying whether or not she's running.
 
-* Is Supplied: You would only ever want to check this if you're not corpse dragging. Determines whether or not the doll is supplied in battle.
-
-* Links: The amount of dummy links of your doll. Auto would make the links dynamic (say, if your doll is level 20 and your target level is 40, the doll would be dummy linked when it reaches 30). Don't select auto if you want a static link number.
-
-<br>
-
-### The Where-you-input-stuff-part (Can't think of a name)
-This mainly where you input how everything would be calculated. Think like buttons on a calculator.
-
-* Stage - Specifies the stage where battle simulation would take place. It is also one of the main factors of your EXP growth. (Note: Penalty Level is also calculated. Make sure you pick the right stage for your dolls)
-
-* Data Room Level And Components - Determines how much Surplus EXP you gain and how fast you can make combat reports. Check "Link All" to sync every data room component level.
-
-* EXP Boost - Check this if there's an EXP Boost event. Otherwise, ignore it. Or not. There's not really much I can do if you *really* want to press it.
-
-* Utilize Surplus EXP - When enabled, all the Surplus EXP your dolls would generate throughout the calculation would be turned to Combat Reports that would then be fed to them one by one. Can save you a lot of time but would also require a bunch of batteries, depending on how much you make. When disabled, the reults (combat report hours, batches an batteries) will calculate EXP Acquired instead.
-
-* Ammo, Rations, and Batteries - This is where you can allocate resources for calculation. Check "Link All" to link Ammo and Rations values.
-
-<br>
-
-### The Calculation Process
-Where the poorly coded magic happens. Calculations can take from a few seconds to a few minutes (since nested loops kept breaking/crashing/freezing I had to make a workaround by making delayed loops. It's pretty slow I know, am still a bit new to coding)
-
-#### Calculation Type
-This will determine how everything would be calculated. There are three calculation types (wow, so diverse) you can choose from:
-
-* Reach Target Level - In this mode, the calculator would run battle simulations (no, not the one in-game) of the selected stage until every doll in the echelon has reached the target level. 
-
-* Execute Amount of Runs - When selected, the calculator would run battle simulations based on the amount of runs specified. (Note: Runs = Stage Clears. Each stage has around 4 to 5 enemies)
-
-* Use Resources Allocated - This will enable the resource input boxes so you can allocate resources. This will run simulations until one resource runs out.
-
-#### Corpse Dragging
-Now, if corpse dragging is enabled, a few other stuff happens during the calculation.
-
-Every stage clear, the carry dolls (and leaders) are interchanged (just like in-game). In normal mode, the row for the 2nd carry doll is disabled since it is only ever used when switching carries. 
-
-#### The Results
-Displays the output of the calculation.
+Why does she have dialogue, you ask? Well... I got bored, okay? (plus I like her personality OwO)
