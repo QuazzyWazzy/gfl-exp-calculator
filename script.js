@@ -425,7 +425,7 @@ function toggleAll(toggle)
 
 		for(i = 0; i < elements.length; i++)	
 		{
-			if(!elements[i].disabled && elements[i].id != "stop" && elements[i].className != "buttonSwitch")
+			if(!elements[i].disabled && elements[i].id != "stop" && elements[i].className != "buttonSwitch" && elements[i].parentElement.id != "graphSettings" && elements[i].parentElement.id != "graphMode")
 			{
 				elements[i].disabled = true;
 				toggledElements.push(elements[i]);
