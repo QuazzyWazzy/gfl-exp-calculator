@@ -1,5 +1,11 @@
-var version = "2.2";
+var version = "3.0";
 var changeLog = [
+	["3.0", [
+		"Rearranged and realigned all elements",
+		"Massive improvement to calculation speed",
+		"Added a graph to show level growth",
+		"Other minor changes"
+	]],
 	["2.2", [
 		"Fixed a manpower consumption bug when corpse dragging",
 		"Some other minor changes"
@@ -102,15 +108,79 @@ var images = [];
 var idleGif = "assets/M249SAW_wait.gif";
 var movingGif = "assets/M249SAW_move.gif";
 
+var loopDelay = 1;
+var operationsPerLoop = 100;
+
+var graphLabels = 10;
+var graphExponentBase = 2;
+var graphColors = ["red", "orange", "yellow", "green", "blue", "violet"];
+var graphUpdateDelay = 100;
+var graphNormalDelay = 500;
+
+var resultsGraph;
+var graphData = {
+
+	type: "line",
+
+	data: {
+		labels: ["Initial"],
+		datasets: []
+	},
+
+	options: {
+		responsive: true,
+
+		tooltips: {
+			mode: "index",
+			intersect: false,
+			backgroundColor: "#004d66",
+			callbacks: {
+				label: function(tooltipItem, data) {
+					var label = data.datasets[tooltipItem.datasetIndex].label || "";
+
+					if (label)
+						label += ": ";
+
+					label += "Level " + tooltipItem.yLabel;
+					return label;
+				}
+			}        
+		},
+
+		hover: {
+			mode: "nearest",
+			intersect: true
+		},
+
+		scales: {
+			xAxes: [{
+				display: true			
+			}],
+			yAxes: [{
+				display: true,
+				stacked: true
+			}]
+		},
+
+		animation: {
+			duration: graphUpdateDelay
+		}
+	}
+};
+
 function generateCalculator()
 {
 	//Main Table
 	if(!mainTableGenerated)
 	{
+		document.getElementById("header").innerHTML += "V" + version;
 		var mainTable = document.getElementById("mainTable").innerHTML;
 
 		for(i = 1; i < amountOfDolls; i++) 
 			document.getElementById("mainTable").innerHTML += mainTable;
+
+		var ctx = document.getElementById("resultsGraph");
+		resultsGraph = new Chart(ctx, graphData);
 			
 		var dollType = document.getElementsByName("dollType");
 		dollType[0].value = "carry1";
@@ -150,6 +220,7 @@ function generateCalculator()
 	preloadImages([idleGif, movingGif]);
 	
 	document.getElementById("consoleDiv").style.display = "none";
+	document.getElementById("graphDiv").style.display = "none";
 	document.getElementsByClassName("calculator")[0].classList.add("show");
 
 	//Stages
@@ -166,7 +237,106 @@ function generateCalculator()
 
 		stage.innerHTML = stageHTML;
 		stagesLoaded = true;
+	} 
+}
+
+function updateGraph()
+{
+	var labels = ["Initial"];
+	var labelNums = [0];
+
+	if(stageClears <= graphLabels)
+	{
+		for(i = 1; i <= stageClears; i++)
+		{
+			labels.push("Stage " + i);
+			labelNums.push(i);
+		}
+	} else
+	{
+		for(i = 1; i <= graphLabels; i++)
+		{
+			var stageNum;
+			var graphMode = document.getElementById("graphMode").value;
+
+			if(graphMode == "linear")
+				stageNum = Math.ceil(stageClears * (i / graphLabels));
+			
+			if(graphMode == "exponential")
+			{
+				stageNum = Math.ceil(stageClears / Math.pow(graphExponentBase, graphLabels - i));
+
+				if(i > 1 && stageNum == 1)
+					continue;
+			}				
+
+			labels.push("Stage " + stageNum);
+			labelNums.push(stageNum);
+		}
 	}
+
+	resultsGraph.data.labels = labels;
+
+	var datasets = [];
+
+	for(i = 0; i < dolls.length; i++)
+	{
+		var levelHistory = dolls[i].levelHistory;
+
+		var dataset = {
+			label: "Doll " + (i + 1) + " (" + dolls[i].gunType.toUpperCase() + ")",
+			backgroundColor: graphColors[i],
+			borderColor: graphColors[i],
+			fill: false,
+			data: [dolls[i].clevel]
+		}
+
+		for(j = 1; j < labelNums.length; j++)
+		{
+			for(k = 0; k < levelHistory.length; k++)
+			{
+				if(labelNums[j] <= levelHistory[k].stage && labelNums[j + 1] > levelHistory[k].stage)
+				{
+					dataset.data[j] = levelHistory[k].level;
+					break;
+				}
+			}
+		}
+
+		dataset.data[labelNums.length - 1] = dolls[i].nlevel;
+
+		for(j = 1; j < dataset.data.length; j++)
+		{
+			if(dataset.data[j] == undefined)
+				dataset.data[j] = dataset.data[j - 1];
+		}
+
+		datasets.push(dataset);
+	}
+
+	if(resultsGraph.data.datasets.length == 0 || resultsGraph.data.datasets.length > datasets.length)
+		resultsGraph.data.datasets = datasets;
+	else
+	{
+		for(i = 0; i < datasets.length; i++)
+		{
+			resultsGraph.data.datasets[i].label = datasets[i].label;
+			resultsGraph.data.datasets[i].data = datasets[i].data;
+		}
+	}
+
+	resultsGraph.options.tooltips.enabled = true;
+	resultsGraph.options.animation.duration = graphNormalDelay;
+	resultsGraph.options.scales.yAxes[0].stacked = !document.getElementById("graphStacked").checked;
+
+	if(isCalculating)
+	{
+		resultsGraph.options.tooltips.enabled = false;
+		resultsGraph.options.animation.duration = graphUpdateDelay;
+		setTimeout(updateGraph, graphUpdateDelay);
+	}
+
+	resultsGraph.update();
 }
 
 function resetCalculator()
@@ -212,7 +382,22 @@ function resetCalculator()
 	isSupplied[1].disabled = true;
 	isSupplied[1].checked = true;
 
+	document.getElementById("EXPacquired").value = "";
+	document.getElementById("surplusEXP").value = "";
+	document.getElementById("combatReportEXP").value = "";
+	document.getElementById("combatReportSurplus").value = "";
+	document.getElementById("totalBattles").value = "";
+	document.getElementById("stageClears").value = "";
+	document.getElementById("crBatches").value = "";
+	document.getElementById("crHours").value = "";
+	document.getElementById("manpowerC").value = "";
+	document.getElementById("ammoC").value = "";
+	document.getElementById("rationsC").value = "";
+	document.getElementById("batteriesC").value = "";
+	document.getElementById("energyC").value = "";
+
 	resetConsole();
+	resetGraph();
 }
 
 function resetConsole()
@@ -220,6 +405,13 @@ function resetConsole()
 	var consoleBox = document.getElementById("consoleBox");
 	consoleBox.innerHTML = " " + drawLine(57) + "\n Girl's Frontline EXP Calculator | v" + version + " | By QuazzyWazzy\n " + drawLine(57);
 	consoleNumber = 0;
+}
+
+function resetGraph()
+{
+	resultsGraph.data.datasets = [];
+	resultsGraph.data.labels = ["Initial"];
+	resultsGraph.update();
 }
 
 var toggledElements = [];
@@ -233,7 +425,7 @@ function toggleAll(toggle)
 
 		for(i = 0; i < elements.length; i++)	
 		{
-			if(!elements[i].disabled && elements[i].id != "stop" && elements[i].id != "buttonSwitch")
+			if(!elements[i].disabled && elements[i].id != "stop" && elements[i].className != "buttonSwitch")
 			{
 				elements[i].disabled = true;
 				toggledElements.push(elements[i]);
@@ -251,8 +443,8 @@ function validateValues()
 	var elements = document.body.getElementsByTagName("*");
 
 	for(i = 0; i < elements.length; i++)
-	{
-		if(elements[i].type != "number")
+	{ 
+		if(elements[i].type != "number" || elements[i].disabled)
 			continue;
 
 		if(parseInt(elements[i].value) > parseInt(elements[i].max))
@@ -376,31 +568,69 @@ function calculatorOnInput()
 	}
 
 	validateValues();
+
+	var labelCount = document.getElementById("graphLabels");
+	labelCount.value = Math.max(parseInt(labelCount.min), parseInt(labelCount.value));
+	graphLabels = parseInt(labelCount.value);
+
+	updateGraph();
 }
 
 function displayConsole()
 {
-	var mainDiv = document.getElementById("mainDiv").style;
 	var consoleDiv = document.getElementById("consoleDiv").style;
-	var buttonSwitch = document.getElementById("buttonSwitch");
+	var consoleBtn = document.getElementById("consoleBtn");
 
-	mainDiv.display = "none";
 	consoleDiv.display = "block";
-	buttonSwitch.value = "Show Table";
+	consoleBtn.value = "Hide Console";
+}
+
+function displayGraph()
+{
+	var graphDiv = document.getElementById("graphDiv").style;
+	var graphBtn = document.getElementById("graphBtn");
+
+	graphDiv.display = "block";
+	graphBtn.value = "Hide Graph";
 }
 
 function switchClick(x)
 {
 	var mainDiv = document.getElementById("mainDiv").style;
 	var consoleDiv = document.getElementById("consoleDiv").style;
+	var graphDiv = document.getElementById("graphDiv").style;
 
-	if(x.value == "Show Console")
-		displayConsole();
-	else
+	switch(x.value)
 	{
-		mainDiv.display = "block";
-		consoleDiv.display = "none";
-		x.value = "Show Console";
+		case "Show Table":
+			mainDiv.display = "block";
+			x.value = "Hide Table";
+			break;
+
+		case "Hide Table":
+			mainDiv.display = "none";
+			x.value = "Show Table";
+			break;
+
+		case "Show Console":
+			consoleDiv.display = "block";
+			x.value = "Hide Console";
+			break;
+
+		case "Hide Console":
+			consoleDiv.display = "none";
+			x.value = "Show Console";
+			break;
+
+		case "Show Graph":
+			graphDiv.display = "block";
+			x.value = "Hide Graph";
+			break;
+
+		case "Hide Graph":
+			graphDiv.display = "none";
+			x.value = "Show Graph";
+			break;
 	}
 }
 
@@ -446,10 +676,10 @@ function resourcesClick(x)
 	}
 }
 
-var loopDelay = 10;
-
 var dolls = [];
 var dollsLeveled = 0;
+var dollMinLevel = 0;
+var dollMaxLevel = 0;
 
 var totalBattles = 0;
 var stageClears = 0;
@@ -484,6 +714,9 @@ function calculateBtn()
 {
 	dolls = [];
 	dollsLeveled = 0;
+	dollMinLevel = 0;
+	dollMaxLevel = 0;
+
 	totalBattles = 0;
 	stageClears = 0;
 	stagesCleared = 0;
@@ -543,7 +776,7 @@ function calculateBtn()
 		//If there's no carry
 		if(dollType != "regular" && gunType == "none" && corpseDrag)
 		{
-			Log("[!] Carry can't be <none> on Corpse Drag Mode");
+			LogAlert("[!] Carry can't be <none> on Corpse Drag Mode");
 			return;
 		}
 
@@ -555,12 +788,18 @@ function calculateBtn()
 		var cexp = parseInt(document.getElementsByName("cexp")[i].value);
 		var isLeader = document.getElementsByName("isLeader")[i].checked;
 		var isSupplied = document.getElementsByName("isSupplied")[i].checked;
-		var links = document.getElementsByName("links")[i].value;	
+		var links = document.getElementsByName("links")[i].value;
+		
+		if(dollMinLevel == 0 || dollMinLevel > clevel)
+			dollMinLevel = clevel;
+
+		if(dollMaxLevel == 0 || dollMaxLevel < clevel)
+			dollMaxLevel = clevel;
 
 		if(isLeader)
 		{
-			dollLeaders.push(i);
-			currentDollLeader = i;
+			dollLeaders.push(dolls.length);
+			currentDollLeader = dolls.length;
 
 			if(dollType == "carry1")
 				carry1Leader = true;		
@@ -578,7 +817,7 @@ function calculateBtn()
 
 	if(dolls.length == 0)
 	{
-		Log("[!] No dolls to calculate.");
+		LogAlert("[!] No dolls to calculate.");
 		return;
 	}
 
@@ -589,13 +828,13 @@ function calculateBtn()
 	{
 		if(dollLeaders.length < 1)
 		{	
-			Log("[!] One leader must be assigned.");
+			LogAlert("[!] One leader must be assigned.");
 			return;
 		}
 
 		if(corpseDrag && ((carry1Leader || carry2Leader) && dollLeaders.length < 2))
 		{
-			Log("[!] No leader is assigned after switching. Please select a second one.");
+			LogAlert("[!] No leader is assigned after switching. Please select a second one.");
 			return;
 		}
 	}
@@ -612,6 +851,8 @@ function calculateBtn()
 	setGif(movingGif);
 	toggleAll(true);
 	isCalculating = true;
+	updateGraph();
+	displayGraph();
 
 	Log("Inputs Valid. Beginning Calculation.");
 	Log("Calculation Type: " + calcType + " | Stage Selected: " + stageEXP[stageIndex][0] + " | Dolls Active: " + dolls.length);
@@ -620,7 +861,6 @@ function calculateBtn()
 	calculationLoop();
 }
 
-var c = 0;
 var stopLoop = false;
 
 function calculationLoop()
@@ -631,20 +871,27 @@ function calculationLoop()
 		return;
 	}
 
+	var time = new Date().getTime();
 	var corpseDrag = document.getElementById("corpseDrag").checked;
 	var calcType = document.getElementById("calcType").value;
 
-	setTimeout( function () {
+	for(t = 0; t < operationsPerLoop; t++)
+	{
+		dollsLeveled = 0;
 
 		for(i = 0; i < dolls.length; i++)
 		{
 			var dollType = dolls[i].dollType;
+			var nlevel = dolls[i].nlevel;
 
 			if((corpseDrag && (dollType == "regular" || dollType == currentCarry)) || !corpseDrag)
 				dolls[i].simulateBattle();
 
-			if(calcType == "targetLevel" && dolls[i].nlevel >= target)
+			if(calcType == "targetLevel" && nlevel >= target)
 				dollsLeveled++;
+
+			if(dollMaxLevel == 0 || dollMaxLevel < nlevel)
+				dollMaxLevel = nlevel;
 
 			dolls[i].rationsConsumed = Math.round(dolls[i].rationsConsumed);
 			dolls[i].consumeManpower();
@@ -652,109 +899,88 @@ function calculationLoop()
 			calculations++;
 		}
 
-		/* Old Calculation
-		var dollType = dolls[c].dollType;
+		totalBattles++;	
+		setResultValues();
 
-		if((corpseDrag && (dollType == "regular" || dollType == currentCarry)) || !corpseDrag)
-			dolls[c].simulateBattle();
-
-		if(calcType == "targetLevel" && dolls[c].nlevel >= target)
-				dollsLeveled++;
-
-		dolls[c].rationsConsumed = Math.round(dolls[c].rationsConsumed);
-
-		calculations++;
-		c++;
-		
-		if(c < dolls.length)
-			calculationLoop();
-		else
+		if(isCombatSim)
+			energyConsumed += stageEXP[stageIndex][6];
+			
+		if(stagesCleared < stageClears)
 		{
-			c = 0;*/
-			totalBattles++;
-			setResultValues();
-
-			if(isCombatSim)
-				energyConsumed += stageEXP[stageIndex][6];
-			
-			if(stagesCleared < stageClears)
+			if(corpseDrag)
 			{
-				if(corpseDrag)
+				var newCarry;
+
+				if(currentCarry == "carry1")
+					newCarry = "carry2";
+				else if(currentCarry == "carry2")
+					newCarry = "carry1";
+
+				currentCarry = newCarry;
+
+				var newLeader = currentDollLeader;
+
+				if(dollLeaders.length > 1)
 				{
-					var newCarry;
-
-					if(currentCarry == "carry1")
-						newCarry = "carry2";
-					else if(currentCarry == "carry2")
-						newCarry = "carry1";
-
-					currentCarry = newCarry;
-
-					var newLeader = currentDollLeader;
-
-					if(dollLeaders.length > 1)
-					{
-						if(currentDollLeader == dollLeaders[0])
-							newLeader = dollLeaders[1];
-						else if(currentDollLeader == dollLeaders[1])
-							newLeader = dollLeaders[0];
-					}
-
-					if(currentCarry == "carry1" && carry1Leader)
-						newLeader = 0;
-					else if(currentCarry == "carry2" && carry2Leader)
-						newLeader = 1;
-
-					currentDollLeader = newLeader;
+					if(currentDollLeader == dollLeaders[0])
+						newLeader = dollLeaders[1];
+					else if(currentDollLeader == dollLeaders[1])
+						newLeader = dollLeaders[0];
 				}
-				stagesCleared++;
+
+				if(currentCarry == "carry1" && carry1Leader)
+					newLeader = 0;
+				else if(currentCarry == "carry2" && carry2Leader)
+					newLeader = 1;
+
+				currentDollLeader = newLeader;
 			}
+			stagesCleared++;
+		}
 			
-			if(calcType == "targetLevel" && dollsLeveled == dolls.length)
+		if(calcType == "targetLevel" && dollsLeveled == dolls.length)
+		{
+			loopFinish();
+			return;
+		}
+
+		if(calcType == "executeRuns" && stageClears == target)
+		{
+			loopFinish(); 
+			return;
+		}
+
+		if(calcType == "useResources")
+		{
+			var manpower = parseInt(document.getElementById("manpower").value);
+			var ammo = parseInt(document.getElementById("ammo").value);
+			var rations = parseInt(document.getElementById("rations").value);
+			var batteries = parseInt(document.getElementById("batteries").value);
+			var energy = parseInt(document.getElementById("energy").value);
+			var useSurplusEXP = document.getElementById("useSurplusEXP").checked;
+
+			if((manpowerConsumed >= manpower || ammoConsumed >= ammo || rationsConsumed >= rations) && !isCombatSim)
 			{
 				loopFinish();
 				return;
 			}
 
-			if(calcType == "executeRuns" && stageClears == target)
+			if((useSurplusEXP && batteriesConsumed >= batteries))
 			{
-				loopFinish(); 
+				loopFinish();
 				return;
 			}
 
-			if(calcType == "useResources")
+			if(isCombatSim && energyConsumed >= energy)
 			{
-				var manpower = parseInt(document.getElementById("manpower").value);
-				var ammo = parseInt(document.getElementById("ammo").value);
-				var rations = parseInt(document.getElementById("rations").value);
-				var batteries = parseInt(document.getElementById("batteries").value);
-				var energy = parseInt(document.getElementById("energy").value);
-				var useSurplusEXP = document.getElementById("useSurplusEXP").checked;
-
-				if((manpowerConsumed >= manpower || ammoConsumed >= ammo || rationsConsumed >= rations) && !isCombatSim)
-				{
-					loopFinish();
-					return;
-				}
-
-				if((useSurplusEXP && batteriesConsumed >= batteries))
-				{
-					loopFinish();
-					return;
-				}
-
-				if(isCombatSim && energyConsumed >= energy)
-				{
-					loopFinish();
-					return;
-				}
+				loopFinish();
+				return;
 			}
-			
-			dollsLeveled = 0;
-			calculationLoop();				
-		//} Old Calculation
-
-	}, loopDelay);
+		}
+	}
+	
+	var ms = new Date().getTime() - time;
+	setTimeout(calculationLoop, ms * loopDelay);				
 }
 
 function stopCalculation()
@@ -799,14 +1025,19 @@ function loopFinish()
 		Log(resultText);
 	}
 
+	Log("EXP Acquired: " + acquiredEXP + " | Surplus EXP: " + acquiredSurplus + " | Total Battles: " + totalBattles + " | Stage Clears: " + stageClears);
+	Log("Consumed Resources | Manpower: " + manpowerConsumed + " | Ammo " + ammoConsumed + " | Rations: " + Math.round(rationsConsumed) + " | Batteries: " + batteriesConsumed + " | Sim Energy: " + energyConsumed);
+
 	Log(drawLine(100));
+
 	stopLoop = false;
 	isCalculating = false;
+	updateGraph();
 	setGif(idleGif);
 }
 
 function setResultValues()
-{
+{	
 	document.getElementById("EXPacquired").value = acquiredEXP;
 	document.getElementById("surplusEXP").value = acquiredSurplus;
 
@@ -888,6 +1119,8 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 	this.ammoConsumed = 0;
 	this.rationsConsumed = 0;
 	this.crConsumed = 0;
+
+	this.levelHistory = [];
 
 	this.getLinks = function()
 	{
@@ -986,7 +1219,7 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 			this.nexp += totalEXP;			
 
 			var dcLevel = parseInt(document.getElementById("dcLevel").value);
-			var rsurplusEXP = Math.round(totalEXP * regSurplusEXP[dcLevel]);
+			var rsurplusEXP = Math.ceil(totalEXP * regSurplusEXP[dcLevel]);
 			this.surplusEXP += rsurplusEXP;
 			acquiredSurplus += rsurplusEXP;
 			
@@ -1016,12 +1249,26 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 					nextToConsumeIndex++;
 			}
 
+			var cnLevel = this.nlevel;
 			this.levelUp();
+
+			if(this.nlevel > cnLevel)
+			{
+				var levelObj = { level: this.nlevel, stage: stageClears + 1 };
+
+				if(this.nlevel < 10)
+				{
+					this.levelHistory[stageClears] = levelObj;
+					this.levelHistory = this.levelHistory.filter(Object);
+				} else
+					this.levelHistory.push(levelObj);
+			}
+
 			return;
 		}
 		
 		var osLevel = parseInt(document.getElementById("osLevel").value);
-		var msurplusEXP = Math.round(totalEXP * maxSurplusEXP[osLevel]);
+		var msurplusEXP = Math.ceil(totalEXP * maxSurplusEXP[osLevel]);
 		this.surplusEXP += msurplusEXP;
 		acquiredSurplus += msurplusEXP;
 		
@@ -1139,6 +1386,14 @@ function LogImportant(string)
 	displayConsole();
 }
 
+function LogAlert(alertText)
+{
+	Log(alertText);
+	alert(alertText);
+	resetGraph();
+	dolls = [];
+}
+
 function drawLine(length)
 {
 	return "-".padStart(length - 1, "-");
@@ -1223,4 +1478,3 @@ function setGif(url)
 
 	img.src = url;
 }
-//dummy commit

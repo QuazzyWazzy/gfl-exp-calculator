@@ -3,8 +3,11 @@
 	<head>
 
 		<link rel="stylesheet" href="stylesheet.css">
-		<link rel="icon" type="image/gif" href="assets/G&K Icon.gif" />
+		<link rel="icon" type="image/gif" href="assets/G&K Icon.gif">
+
+		<script src="chartjs/Chart.min.js"></script>
 		<script type="text/javascript" src="script.js"></script>
+
 		<title> Girls Frontline EXP Calculator </title>
 
 	</head>
@@ -13,191 +16,264 @@
 
 		<form class="calculator" id=”calculator” oninput="calculatorOnInput()">
 
-			<h1 align="center"> Girls Frontline EXP Calculator </h1>
+			<h1 align="left" id="header"> Girls Frontline EXP Calculator </h1>
 
-			<table border="0" align="center">
+			<table border="0" align="left">
 				<tr>
-					<td>			
-						<div class="tooltip"> 
-							<div style="position: relative; width: 250px; height: 200px;">
-								<img class="topLeftGif" id="topLeftGif" src="assets/M249SAW_wait.gif" width="136" height="186" onmouseover="randomizeText()" onclick="randomizeText()"> 
-								<span class="tooltiptext" id="randomText" style="top: 95%;"> </span> 
-							</div>
-						</div>
-					</td>
-
 					<td>
-						<div id="mainDiv">
-							<table id="mainTable" cellspacing="8px" cellpadding="4px" border="0" frame="box" align="center">
-								<tr>
-									<td>
-										<div class="tooltip"> Gun Type: <span class="tooltiptext"> Specifies the Gun Type. Selecting none will not assign a doll. </span> </div>
-										<select name="gunType">
-											<option value="none">None</option>
-											<option value="hg" selected>HG</option>
-											<option value="smg">SMG</option>
-											<option value="ar">AR</option>
-											<option value="rf">RF</option>
-											<option value="mg">MG</option>
-											<option value="sg">SG</option>
-										</select>
-									</td>
-									<td>
-										<div class="tooltip"> Doll Type: <span class="tooltiptext"> Carry dolls get MVP Bonus EXP and are interchanged when corpse dragging. </span> </div>
-										<select name="dollType" disabled>
-											<option value="regular" selected>Regular</option>
-											<option value="carry1">1st Carry</option>
-											<option value="carry2">2nd Carry</option>
-										</select>
-									</td>
-									<td> Current Level: <input type="number" name="clevel" value="1" min="1" max="100" step="1"> </td>
-									<td> Current EXP: <input type="number" name="cexp" value="0" min="0" max="145699" step="1000"> </td>
-									<td> <div class="leaderCB"> <input class="checkbox" type="checkbox" name="isLeader" onclick="isLeaderClick(this)"> </div> </td>
-									<td> <div class="suppliedCB"> <input class="checkbox" type="checkbox" name="isSupplied" checked> </div> </td>
-									<td>
-										<div class="tooltip"> Links: <span class="tooltiptext"> Number of dummies linked to the doll. Setting this to auto will dynamically change the dummy link of the doll as she levels. </span> </div>
-										<select name="links">
-											<option value="auto" selected>Auto</option>
-											<option value="1">1</option>
-											<option value="2">2</option>
-											<option value="3">3</option>
-											<option value="4">4</option>
-											<option value="5">5</option>
-										</select>
-									</td>
-								</tr>
-							</table>
-						</div>
 
-						<div id="consoleDiv" align="center">
-							<textarea id="consoleBox" align="right" cols="120" rows="12" disabled></textarea>
-						</div>
-
-						<table class="tableSwitcher" border="0" align="center">
+						<table border="0" align="left">
 							<tr>
-								<td style="text-align: right;">
-									<div class="tooltip"> <input id="buttonSwitch" type="button" value="Show Console" onclick="switchClick(this)"> <span class="tooltiptext"> Switch between Main Table and Console. </span> </div>
+
+								<td>
+
+									<table class="tableSwitcher" border="0" align="left">
+										<tr>
+											<td style="text-align: right;">
+												<input class="buttonSwitch" id="tableBtn" type="button" value="Hide Table" onclick="switchClick(this)">
+												<input class="buttonSwitch" id="consoleBtn" type="button" value="Show Console" onclick="switchClick(this)">
+												<input class="buttonSwitch" id="graphBtn" type="button" value="Show Graph" onclick="switchClick(this)">
+											</td>
+										</tr>
+									</table>
+
+									<div id="mainDiv">
+										<table id="mainTable" border="0" frame="box" align="left">
+											<tr>
+												<td>
+													<div class="tooltip"> Gun Type: <span class="tooltiptext"> Specifies the Gun Type. Selecting none will not assign a doll. </span> </div>
+													<select name="gunType">
+														<option value="none">None</option>
+														<option value="hg" selected>HG</option>
+														<option value="smg">SMG</option>
+														<option value="ar">AR</option>
+														<option value="rf">RF</option>
+														<option value="mg">MG</option>
+														<option value="sg">SG</option>
+													</select>
+												</td>
+												<td>
+													<div class="tooltip"> Doll Type: <span class="tooltiptext"> Carry dolls get MVP Bonus EXP and are interchanged when corpse dragging. </span> </div>
+													<select name="dollType" disabled>
+														<option value="regular" selected>Regular</option>
+														<option value="carry1">1st Carry</option>
+														<option value="carry2">2nd Carry</option>
+													</select>
+												</td>
+												<td> Current Level: <input type="number" name="clevel" value="1" min="1" max="100" step="1"> </td>
+												<td> Current EXP: <input type="number" name="cexp" value="0" min="0" max="145700" step="1000"> </td>
+												<td> <div class="leaderCB"> <input class="checkbox" type="checkbox" name="isLeader" onclick="isLeaderClick(this)"> </div> </td>
+												<td> <div class="suppliedCB"> <input class="checkbox" type="checkbox" name="isSupplied" checked> </div> </td>
+												<td>
+													<div class="tooltip"> Links: <span class="tooltiptext"> Number of dummies linked to the doll. Setting this to auto will dynamically change the dummy link of the doll as she levels. </span> </div>
+													<select name="links">
+														<option value="auto" selected>Auto</option>
+														<option value="1">1</option>
+														<option value="2">2</option>
+														<option value="3">3</option>
+														<option value="4">4</option>
+														<option value="5">5</option>
+													</select>
+												</td>
+											</tr>
+										</table>
+									</div>
+
+									<div id="consoleDiv" align="left">
+										<textarea id="consoleBox" align="right" cols="120" rows="12" disabled></textarea>
+									</div>
+
+									<div id="graphDiv" align="left">
+										<table id="resultsTable" frame="box">
+											<tr>
+												<td> <canvas id="resultsGraph" width="1030px" height="255px"></canvas> </td>
+											</tr>						
+										</table>
+										<table class="graphSettings" border="0" align="left">
+											<tr>
+												<td style="text-align: right; border: none;">
+													Label Count: <input type="number" id="graphLabels" value="10" min="5" max="15">
+													<input type="button" value="" style="opacity: 0;">
+													Graph Mode:
+													<select id="graphMode">
+														<option value="linear">Linear</option>
+														<option value="exponential" selected>Exponential</option>
+													</select>
+													<input type="button" value="" style="opacity: 0;">
+													<input class="checkbox" type="checkbox" id="graphStacked" checked> <label for="graphStacked">Stacked</label>
+												</td>
+											</tr>
+									</table>
+									</div>
+								
 								</td>
+
+								<td>			
+									<div class="tooltip"> 
+										<div style="position: relative; width: 200px; height: 200px;">
+											<img class="topLeftGif" id="topLeftGif" src="assets/M249SAW_wait.gif" width="136" height="186" onmouseover="randomizeText()" onclick="randomizeText()"> 
+											<span class="tooltiptext" id="randomText" style="top: 95%;"> </span> 
+										</div>
+									</div>
+								</td>
+
 							</tr>
 						</table>
-					</td>
 
-					<td>
-						<div style="position: relative; width: 250px; height: 200px;" />
 					</td>
-
 				</tr>
-			</table>
 
-			<br>
-
-			<table cellspacing="4px" cellpadding="4px" border="0" align="center">
 				<tr>
 					<td>
-						<div class="tooltip"> Stage: <span class="tooltiptext"> Stage to be used in the calculation. Combat Simulations are treated as if it is completely finished, thus the EXP is doubled. </span> </div>
-						<select id="stage"> </select>
+
+						<table cellspacing="4px" cellpadding="4px" border="0" align="left">
+							<tr>
+								<td> <input type="button" id="calculate" value=" Calculate " onclick="calculateBtn()"> </td>
+								<td> <input type="button" id="reset" value=" Reset " onclick="resetCalculator()"> </td>
+								<td> <input type="button" id="clearConsole" value=" Clear Console " onclick="resetConsole()"> </td>
+								<td> <input type="button" id="stop" value=" Stop " onclick="stopCalculation()"> </td>
+
+								<td>
+									<div class="tooltip"> Calculation: 
+										<span class="tooltiptext"> 
+											Reach Target Level will simulate battles until all dolls reach the target level. <br /> <br />
+											Execute Amount Of Runs will simulate battles based on the amount of runs specified. <br /> <br />
+											Use Resources Allocated will simulate battles until one resource allocated runs out.
+										</span> 
+									</div>
+									<select id="calcType">
+										<option value="targetLevel">Reach Target Level</option>
+										<option value="executeRuns">Execute Amount of Runs</option>
+										<option value="useResources">Use Resources Allocated</option>
+									</select>
+								</td>
+
+								<td id="targetText"> Target Level:</td>
+								<td> <input type="number" id="target" value="1" min="1" max="100" step="1"> </td>
+							</tr>
+						</table>
+
 					</td>
-					<td> <div class="tooltip"> Data Room Level: <span class="tooltiptext"> Affects Combat Report production and Surplus EXP acquired from combat. Check 'Link All' to sync all data room components. </span> </div>
-						<input type="number" id="drLevel" value="0" min="0" max="10" step="1"> </td>
-					<td> <input class="checkbox" type="checkbox" id="expBoost"> <label for="expBoost"> 
-						<div class="tooltip"> EXP Boost <span class="tooltiptext"> Check this if there is an EXP Boost Event (This is set to 1.5x) </span> </div> </label> </div> </td>
-					<td> <input class="checkbox" type="checkbox" id="useSurplusEXP" checked> <label for="useSurplusEXP"> 
-						<div class="tooltip"> Utilize Surplus EXP <span class="tooltiptext"> Enable this to turn the Surplus EXP the dolls acquire throughout the calculation into Combat Reports. This would then be consumed by the dolls one by one. </span> </div> </label> </td>
-					<td> <input class="checkbox" type="checkbox" id="corpseDrag" checked> <label for="corpseDrag"> 
-						<div class="tooltip"> Corpse Drag Mode <span class="tooltiptext"> When enabled, carry dolls will swap places every stage clear. Disabling this will also disable the 2nd carry and no interchanging will occur. </span> </div> </label> </td>
 				</tr>
-			</table>
 
-			<table cellspacing="4px" cellpadding="4px" border="0" align="center">
-				<tr>
-					<td> <div class="tooltip"> Drone Console: <span class="tooltiptext"> Affects the amount Surplus EXP that dolls below max level can generate every battle. </span> </div> 
-						<input type="number" id="dcLevel" value="0" min="0" max="10" step="1"> </td>
-					<td> <div class="tooltip"> Data Table: <span class="tooltiptext"> Affects the amount of Surplus EXP used per batch. </span> </div> 
-						<input type="number" id="dtLevel" value="0" min="0" max="10" step="1"> </td>
-					<td> <div class="tooltip"> Operating Station: <span class="tooltiptext"> Affects the amount of Surplus EXP that max leveled dolls can generate every battle. </span> </div> 
-						<input type="number" id="osLevel" value="0" min="0" max="10" step="1"> </td>
-					<td> <div class="tooltip"> Computer: <span class="tooltiptext"> Affects the amount of time (hours) it would take to create a batch of Combat Reports. </span> </div> 
-						<input type="number" id="compLevel" value="0" min="0" max="10" step="1"> </td>
-					<td> <div class="tooltip"> Fax Machine: <span class="tooltiptext"> Affects the amount of Combat Reports that are made per batch. </span> </div> 
-						<input type="number" id="fmLevel" value="0" min="0" max="10" step="1"> </td>
-					<td> <div> <input class="checkbox" type="checkbox" id="linkDR"> <label for="linkDR">
-						<div class="tooltip"> Link All <span class="tooltiptext"> Link all components to Data Room Level. </span> </div> </label> </div> </td>
-				</tr>
-				<tr>
-					<td> Manpower: <input type="number" id="manpower" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
-					<td> Ammo: <input type="number" id="ammo" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
-					<td> Rations: <input type="number" id="rations" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
-					<td> Batteries: <input type="number" id="batteries" value="0" min="0" max="9999" step="3" disabled> </td>
-					<td> Sim Energy: <input type="number" id="energy" value="0" min="0" max="9999" step="1" disabled> </td>
-					<td> <div> <input class="checkbox" type="checkbox" id="linkResources"> <label for="linkResources">
-						<div class="tooltip"> Link All <span class="tooltiptext"> Link Manpower, Rations and Parts values. </span> </div> </label> </div> </td>
-				</tr>
-			</table>
-
-			<table cellspacing="4px" cellpadding="4px" border="0" align="center">
 				<tr>
 					<td>
-						<div class="tooltip"> Calculation: 
-							<span class="tooltiptext"> 
-								Reach Target Level will simulate battles until all dolls reach the target level. <br /> <br />
-								Execute Amount Of Runs will simulate battles based on the amount of runs specified. <br /> <br />
-								Use Resources Allocated will simulate battles until one resource allocated runs out.
-							</span> </div>
-						<select id="calcType">
-							<option value="targetLevel">Reach Target Level</option>
-							<option value="executeRuns">Execute Amount of Runs</option>
-							<option value="useResources">Use Resources Allocated</option>
-						</select>
+
+						<table cellspacing="4px" cellpadding="4px" border="0" align="left">
+							<tr>
+								<td>
+									<div class="tooltip"> Stage: <span class="tooltiptext"> Stage to be used in the calculation. Combat Simulations are treated as if it is completely finished, thus the EXP is doubled. </span> </div>
+									<select id="stage"> </select>
+								</td>
+								<td> <div class="tooltip"> Data Room Level: <span class="tooltiptext"> Affects Combat Report production and Surplus EXP acquired from combat. Check 'Link All' to sync all data room components. </span> </div>
+									<input type="number" id="drLevel" value="0" min="0" max="10" step="1"> </td>
+								<td> <input class="checkbox" type="checkbox" id="expBoost"> <label for="expBoost"> 
+									<div class="tooltip"> EXP Boost <span class="tooltiptext"> Check this if there is an EXP Boost Event (This is set to 1.5x) </span> </div> </label> </div> </td>
+								<td> <input class="checkbox" type="checkbox" id="useSurplusEXP" checked> <label for="useSurplusEXP"> 
+									<div class="tooltip"> Utilize Surplus EXP <span class="tooltiptext"> Enable this to turn the Surplus EXP the dolls acquire throughout the calculation into Combat Reports. This would then be consumed by the dolls one by one. </span> </div> </label> </td>
+								<td> <input class="checkbox" type="checkbox" id="corpseDrag" checked> <label for="corpseDrag"> 
+									<div class="tooltip"> Corpse Drag Mode <span class="tooltiptext"> When enabled, carry dolls will swap places every stage clear. Disabling this will also disable the 2nd carry and no interchanging will occur. </span> </div> </label> </td>
+							</tr>
+						</table>
+
 					</td>
-					<td id="targetText"> Target Level:</td>
-					<td> <input type="number" id="target" value="1" min="1" max="100" step="1"> </td>
 				</tr>
-			</table>
 
-			<table cellspacing="4px" cellpadding="4px" border="0" align="center">
 				<tr>
-					<td> <input type="button" id="calculate" value=" Calculate " onclick="calculateBtn()"> </td>
-					<td> <input type="button" id="reset" value=" Reset " onclick="resetCalculator()"> </td>
-					<td> <input type="button" id="clearConsole" value=" Clear Console " onclick="resetConsole()"> </td>
-					<td> <input type="button" id="stop" value=" Stop " onclick="stopCalculation()"> </td>
+					<td>
+
+						<table cellspacing="4px" cellpadding="4px" border="0" align="left">
+							<tr>
+								<td> <div> <input class="checkbox" type="checkbox" id="linkDR"> <label for="linkDR">
+									<div class="tooltip"> Link All <span class="tooltiptext"> Link all components to Data Room Level. </span> </div> </label> </div> </td>
+								<td></td>
+								<td> <div class="tooltip"> Drone Console: <span class="tooltiptext"> Affects the amount Surplus EXP that dolls below max level can generate every battle. </span> </div> 
+									<input type="number" id="dcLevel" value="0" min="0" max="10" step="1"> </td>
+								<td> <div class="tooltip"> Data Table: <span class="tooltiptext"> Affects the amount of Surplus EXP used per batch. </span> </div> 
+									<input type="number" id="dtLevel" value="0" min="0" max="10" step="1"> </td>
+								<td> <div class="tooltip"> Operating Station: <span class="tooltiptext"> Affects the amount of Surplus EXP that max leveled dolls can generate every battle. </span> </div> 
+									<input type="number" id="osLevel" value="0" min="0" max="10" step="1"> </td>
+								<td> <div class="tooltip"> Computer: <span class="tooltiptext"> Affects the amount of time (hours) it would take to create a batch of Combat Reports. </span> </div> 
+									<input type="number" id="compLevel" value="0" min="0" max="10" step="1"> </td>
+								<td> <div class="tooltip"> Fax Machine: <span class="tooltiptext"> Affects the amount of Combat Reports that are made per batch. </span> </div> 
+									<input type="number" id="fmLevel" value="0" min="0" max="10" step="1"> </td>
+							</tr>
+						</table>
+
+					</td>
 				</tr>
-			</table>
 
-			<br>
-
-			<table cellspacing="6px" cellpadding="3px" border="0" frame="above" align="center">
-				<tr> </tr>
-				<tr> </tr>
-				<tr> </tr>
 				<tr>
-					<td> EXP Acquired: <input type="text" id="EXPacquired" disabled> </td>
-					<td> Surplus EXP: <input type="number" id="surplusEXP" disabled> </td>
-					<td> EXP to Combat Report: <input type="number" id="combatReportEXP" min="0" max="9999" disabled> </td>
-					<td> Surplus to Combat Report: <input type="number" id="combatReportSurplus" min="0" max="9999" disabled> </td>
-				</tr>
-			</table>
+					<td>
 
-			<table cellspacing="6px" cellpadding="3px" border="0" align="center">
+						<table cellspacing="4px" cellpadding="4px" border="0" align="left">
+							<tr>
+								<td> <div> <input class="checkbox" type="checkbox" id="linkResources"> <label for="linkResources">
+									<div class="tooltip"> Link All <span class="tooltiptext"> Link Manpower, Rations and Parts values. </span> </div> </label> </div> </td>
+								<td></td>
+								<td> Manpower: <input type="number" id="manpower" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
+								<td> Ammo: <input type="number" id="ammo" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
+								<td> Rations: <input type="number" id="rations" value="0" min="0" max="300000" step="100" onclick="resourcesClick(this)" disabled> </td>
+								<td> Batteries: <input type="number" id="batteries" value="0" min="0" max="9999" step="3" disabled> </td>
+								<td> Sim Energy: <input type="number" id="energy" value="0" min="0" max="9999" step="1" disabled> </td>								
+							</tr>
+						</table>
+				
+					</td>
+				</tr>
+
+				<tr> <td> <div style="height: 20px;" /> </td> </tr>
+
 				<tr>
-					<td> Total Battles: <input type="number" id="totalBattles" min="0" max="9999" disabled> </td>
-					<td> Stage Clears: <input type="number" id="stageClears" min="0" max="9999" disabled> </td>
-					<td> Combat Report Hours (<i name="expText">Surplus</i>): <input type="number" id="crHours" min="0" max="9999" disabled> </td>
-					<td> Combat Report Batches (<i name="expText">Surplus</i>): <input type="number" id="crBatches" min="0" max="9999" disabled> </td>
-				</tr>
-			</table>
+					<td>
 
-			<table cellspacing="6px" cellpadding="3px" border="0" align="center">
+						<table cellspacing="6px" cellpadding="3px" border="0" frame="above" align="left">
+							<tr> <td> <div style="height: 10px;" /> </td> </tr>
+							<tr>
+								<td> EXP Acquired: <input type="text" id="EXPacquired" disabled> </td>
+								<td> Surplus EXP: <input type="number" id="surplusEXP" disabled> </td>
+								<td> EXP to Combat Report: <input type="number" id="combatReportEXP" min="0" max="9999" disabled> </td>
+								<td> Surplus to Combat Report: <input type="number" id="combatReportSurplus" min="0" max="9999" disabled> </td>
+							</tr>
+						</table>
+
+					</td>
+				</tr>
+
 				<tr>
-					<td> Resources Consumed = </td>
-					<td> Manpower: <input type="number" id="manpowerC" min="0" max="300000" disabled> </td>
-					<td> Ammo: <input type="number" id="ammoC" min="0" max="300000" disabled> </td>
-					<td> Rations: <input type="number" id="rationsC" min="0" max="300000" disabled> </td>
-					<td> Batteries (<i name="expText">Surplus</i>): <input type="number" id="batteriesC" min="0" max="9999" disabled> </td>
-					<td> Sim Energy: <input type="number" id="energyC" min="0" max="9999" disabled> </td>
-				</tr>
-			</table>
+					<td>
 
-			<br>
+						<table cellspacing="6px" cellpadding="3px" border="0" align="left">
+							<tr>
+								<td> Total Battles: <input type="number" id="totalBattles" min="0" max="9999" disabled> </td>
+								<td> Stage Clears: <input type="number" id="stageClears" min="0" max="9999" disabled> </td>
+								<td> Combat Report Hours (<i name="expText">Surplus</i>): <input type="number" id="crHours" min="0" max="9999" disabled> </td>
+								<td> Combat Report Batches (<i name="expText">Surplus</i>): <input type="number" id="crBatches" min="0" max="9999" disabled> </td>
+							</tr>
+						</table>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+
+						<table cellspacing="6px" cellpadding="3px" border="0" align="left">
+							<tr>
+								<td> Manpower: <input type="number" id="manpowerC" min="0" max="300000" disabled> </td>
+								<td> Ammo: <input type="number" id="ammoC" min="0" max="300000" disabled> </td>
+								<td> Rations: <input type="number" id="rationsC" min="0" max="300000" disabled> </td>
+								<td> Batteries (<i name="expText">Surplus</i>): <input type="number" id="batteriesC" min="0" max="9999" disabled> </td>
+								<td> Sim Energy: <input type="number" id="energyC" min="0" max="9999" disabled> </td>
+							</tr>
+						</table>
+
+					</td>
+				</tr>
+
+				<tr> <td> <div style="height: 40px;" /> </td> </tr>
+
+			</table>
 
 		</form>
 	</body>

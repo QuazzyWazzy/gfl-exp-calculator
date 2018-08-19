@@ -3,13 +3,13 @@
 	font-family: Trebuchet MS;
 	color: #004d66;
 	background: linear-gradient(#b3ecff, #e6f9ff);
-	padding: 10px;
+	padding: 20px 0 0 30px;
 	
 	-webkit-user-select: none; /* Chrome/Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+ */
 
-	min-width: 1600px;
+	min-width: 1080px;
 }
 
 .calculator 
@@ -70,17 +70,22 @@ table, textarea
 	font-size: 14px;
 }
 
-td {
-	text-align: center;
-}
+td { text-align: center; }
 
-#mainTable, #consoleBox 
+#mainTable, #consoleBox, #resultsTable 
 {
 	height: 255px;
 	width: 1040px;
 	background: #b3ecff;
-	border-radius: 25px 0 0 0;
+	border-collapse: collapse;
+	border-radius: 0;
 }
+
+#mainTable tr { height: 40px; }
+
+#mainTable tr:nth-child(even) { background: #ccf2ff; }
+
+#mainTable tr:hover { background: #80dfff; }
 
 input[type=button] 
 {
@@ -96,27 +101,47 @@ input[type=button]:active
 	background: #b3ecff;
 }
 
+input[type=button]:disabled
+{
+	opacity: 0.85;
+}
+
 .tableSwitcher 
 {
 	background: #004d66;
 	width: 1040px;
 	height: 20px;
 	position: relative;
-	border-bottom-left-radius: 25px;
-	border-bottom-right-radius: 25px;
+	border-top-left-radius: 25px;
+	border-top-right-radius: 25px;
 }
 
-#buttonSwitch 
+.graphSettings 
+{
+	background: #004d66;
+	width: 1040px;
+	height: 40px;
+	position: relative;
+	border-bottom-left-radius: 25px;
+	border-bottom-right-radius: 25px;
+	color: white;
+	padding-right: 20px;
+	padding-bottom: 10px;
+}
+
+#tableBtn, #consoleBtn, #graphBtn
 {
 	border: none;
 	margin: 2px;
 	margin-right: 25px;
 }
 
-#buttonSwitch:hover, #buttonSwitch:focus, #buttonSwitch:active 
+#tableBtn:hover, #tableBtn:focus, #tableBtn:active,
+#consoleBtn:hover, #consoleBtn:focus, #consoleBtn:active,
+#graphBtn:hover, #graphBtn:focus, #graphBtn:active
 {
 	background: #004d66;
-	box-shadow: 0 0 0 0;
+	box-shadow: 0 0 0 0
 }
 
 .checkbox 
@@ -238,7 +263,7 @@ input[type=button]:active
 	opacity: 1;
 }
 
-.checkbox, .checkbox + label:before, .button, input, select, .tooltip .tooltiptext
+.checkbox, .checkbox + label:before, .button, input, select, .tooltip .tooltiptext, tr
 {
 	-webkit-transition-duration: 0.2s; 
 	-moz-transition-duration: 0.2s;
@@ -257,4 +282,3 @@ input[type=button]:active
 	width: 173px;
 	height: 178px;
 }
-/*dummy commit*/
