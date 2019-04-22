@@ -1221,8 +1221,11 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 			if(this.isLeader && this.dollType != "regular")
 				expMultiplier += leaderAndMvpBonus;
 
-			var fairyMultiplier = document.getElementById("combatFairy").value;
-			expMultiplier += parseFloat(fairyMultiplier);
+			if(!stage[5])
+			{
+				var fairyMultiplier = document.getElementById("combatFairy").value;
+				expMultiplier += parseFloat(fairyMultiplier);
+			}
 
 			totalEXP *= expMultiplier;
 			totalEXP *= linkMultiplier[this.getLinks() - 1];
