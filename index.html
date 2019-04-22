@@ -150,6 +150,11 @@
 
 								<td id="targetText"> Target Level:</td>
 								<td> <input type="number" id="target" value="1" min="1" max="100" step="1"> </td>
+
+								<td>
+									<div class="tooltip"> Combat Fairy: <span class="tooltiptext"> Use Combat Fairy in calculation. Combat Fairies give an EXP bonus depending on their skill level. </span> </div>
+									<select id="combatFairy"></select>
+								</td>
 							</tr>
 						</table>
 
@@ -166,9 +171,9 @@
 									<select id="stage"> </select>
 								</td>
 								<td> <div class="tooltip"> Data Room Level: <span class="tooltiptext"> Affects Combat Report production and Surplus EXP acquired from combat. Check 'Link All' to sync all data room components. </span> </div>
-									<input type="number" id="drLevel" value="0" min="0" max="10" step="1"> </td>
+									<input type="number" id="drLevel" value="0" min="0" max="10" step="1"> </td>							
 								<td> <input class="checkbox" type="checkbox" id="expBoost"> <label for="expBoost"> 
-									<div class="tooltip"> EXP Boost <span class="tooltiptext"> Check this if there is an EXP Boost Event (This is set to 1.5x) </span> </div> </label> </div> </td>
+									<div class="tooltip"> EXP Boost Event<span class="tooltiptext"> Check this if there is an EXP Boost Event (This is set to 1.5x) </span> </div> </label> </div> </td>
 								<td> <input class="checkbox" type="checkbox" id="useSurplusEXP" checked> <label for="useSurplusEXP"> 
 									<div class="tooltip"> Utilize Surplus EXP <span class="tooltiptext"> Enable this to turn the Surplus EXP the dolls acquire throughout the calculation into Combat Reports. This would then be consumed by the dolls one by one. </span> </div> </label> </td>
 								<td> <input class="checkbox" type="checkbox" id="corpseDrag" checked> <label for="corpseDrag"> 

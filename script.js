@@ -1,5 +1,9 @@
-var version = "3.0";
+var version = "3.1";
 var changeLog = [
+	["3.1", [
+		"Added Combat Fairy option",
+		"Some UI changes"
+	]],
 	["3.0", [
 		"Rearranged and realigned all elements",
 		"Massive improvement to calculation speed",
@@ -47,6 +51,9 @@ var expPenalty = 0.2;
 var expBoost = 1.5;
 var minimumBaseEXP = 3;
 
+// Thanks to /u/kamanitachi
+var combatFairyBoost = [0, 0.05, 0.08, 0.10, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.25];
+
 /*Source: https://www.reddit.com/r/girlsfrontline/comments/8w16g0/in_case_you_didnt_know_being_mvp_gives_tdolls_30/ */
 var leaderBonus = 0.2;
 var mvpBonus = 0.3;
@@ -66,9 +73,9 @@ var stageEXP = [
 	["5-4", 79, 380, 5, 0],
 	["5-2E", 87, 410, 5, 0],
 	["0-2", 100, 490, 5, 1],
-	["Basic Training", 100, 20000, 1, 1, true, 1],
-	["Intermediate Training", 100, 80000, 1, 1, true, 2],
-	["Advanced Training", 100, 240000, 1, 1, true, 3]
+	["Basic Training Simulation", 100, 20000, 1, 1, true, 1],
+	["Intermediate Training Simulation", 100, 80000, 1, 1, true, 2],
+	["Advanced Training Simulation", 100, 240000, 1, 1, true, 3]
 ];
 var combatSimMultiplier = 2;
 
@@ -100,6 +107,7 @@ var currentLeaders = [];
 
 var mainTableGenerated = false;
 var stagesLoaded = false;
+var comabtFairyLoaded = false;
 
 var consoleNumber = 0;
 var numberDigits = 3;
@@ -232,12 +240,37 @@ function generateCalculator()
 		for(i = 0; i < stageEXP.length; i++)
 		{
 			var stageName = stageEXP[i][0];
-			stageHTML += '<option value="' + stageName + '">' + stageName + "</option>"
+
+			if(!stageEXP[i][5]) 
+				stageName += " (" + stageEXP[i][2] + " EXP, " + stageEXP[i][3] + " Enemies)";
+			else 
+				stageName += " (" + stageEXP[i][2] + " EXP)";	
+
+			stageHTML += '<option value="' + stageEXP[i][0] + '">' + stageName + "</option>";
 		}
 
 		stage.innerHTML = stageHTML;
 		stagesLoaded = true;
-	} 
+	}
+	
+	if(!comabtFairyLoaded) 
+	{
+		var combatFairy = document.getElementById("combatFairy");
+		var fairyHTML = "";
+
+		for(i = 0; i < combatFairyBoost.length; i++) 
+		{
+			var level = "Level " + i + " (+" + Math.round(combatFairyBoost[i] * 100) + "%)";
+
+			if(i == 0)
+				level = "Don't Use";
+			
+			fairyHTML += '<option value="' + combatFairyBoost[i] + '">' + level + "</option>";
+		}
+
+		combatFairy.innerHTML = fairyHTML;
+		comabtFairyLoaded = true;
+	}
 }
 
 function updateGraph()
@@ -1187,6 +1220,9 @@ function TDoll(gunType, dollType, clevel, cexp, isLeader, isSupplied, links, ind
 
 			if(this.isLeader && this.dollType != "regular")
 				expMultiplier += leaderAndMvpBonus;
+
+			var fairyMultiplier = document.getElementById("combatFairy").value;
+			expMultiplier += parseFloat(fairyMultiplier);
 
 			totalEXP *= expMultiplier;
 			totalEXP *= linkMultiplier[this.getLinks() - 1];
